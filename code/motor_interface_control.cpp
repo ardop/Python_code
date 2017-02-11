@@ -1,4 +1,4 @@
-//#include "motor_control.h"
+#include "motor_control.h"
 #include "kinematics.h"
 #include <fstream>
 #include <armadillo>
@@ -8,6 +8,8 @@ using namespace std;
 
 int main()
 {
+	double langles[5], rangles[5], hangles[2];
+	
 	while(1)
 	{
 		ifstream file("angles.txt");
