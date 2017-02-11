@@ -140,6 +140,8 @@ class Motor_Interface(QDialog):
             file.write(str(angle) + '\n')
 
         file.close()
+        
+        print "Moved"
 
 
     def set_angles(self):
