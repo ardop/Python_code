@@ -2,12 +2,13 @@
 #include "kinematics.h"
 #include <sstream>
 
+
 using namespace std;
 
-int str2num(string s) 
+double str2double(string s) 
 {  
     istringstream is(s);
-    int n;
+    double n;
     is >> n;
 	return n;
 }
@@ -45,27 +46,66 @@ int main()
 		
 	while((pca1->error >= 0 || pca1->error >= 0)  && getkey() != 27)
 	{
-		ifstream file("../code/angles.txt");
+		ifstream file("../code/ik_angles.txt");
 		string line;
-		int t_angle,count=0;
+		double t_angle;
+		mat target;
+		target.reset();
+		int count = 0;
 		cout << "starting" << endl;
 		if(file.is_open())
 		{
 			while(getline(file, line))
 			{
-				t_angle = str2num(line);
-				val[count]=t_angle;
+				t_angle = str2double(line);
+				mat t_angle_mat;
+				t_angle_mat << t_angle;
+				target = join_horiz(target, t_angle_mat);
 				count++;
-				if(count==12)
+				if(count==3)
 					break;
+
 			}	
+
+				
 		file.close();
 		}
 		else
 		{
 			cout << "Could not open file" << endl;
 		}
-		rotate(val,pca1);
+		
+		mat theta;
+		theta = calculate_ik_jacobian(target);
+		
+		if(theta.n_rows == 1)
+		{
+			cout << "Ignore" << endl;
+		}
+		else
+		{
+			cout << theta(0) << " " << theta(1) << " " << theta(2) << " " << theta(3) << " ";
+
+			val[0] = 53;
+			val[1] = 150;
+			val[2] = 105;
+			val[3] = 0;
+			val[4] = 90;
+			val[5] = kin_map_left(1, theta(0));
+			val[6] = kin_map_left(2, theta(1));
+			val[7] = kin_map_left(3, theta(2));
+			val[8] = kin_map_left(4, theta(3));
+			val[9] = 90;
+			val[10] = 90;
+			val[11] = 90;
+			
+			cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
+
+			//target.print();
+			//target.reset();
+			cout << endl << endl;
+			rotate(val,pca1);
+		}
 	}
 	pca1->closePCA9685();
 }

@@ -25,11 +25,13 @@ SOFTWARE.
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 #include <termios.h>
 #include <time.h>
 #include <JHPWMPCA9685.h>
 #include <iostream>
 #include <math.h>
+#include <fstream>
 
 #define PI 3.14159265358979323846
 
@@ -162,27 +164,6 @@ void rotate_multi(int d[5],PCA9685 *a)
 	}
 }
 
-double kin_map_left(int c,double angle)
-{
-	switch(c)
-	{
-		case 0: 		
-			return angle*180/(PI)+137;
-			break;
-		case 1:
-			return 116-angle*180/(PI);
-			break;
-		case 2:
-			return angle*180/(PI)+15;
-			break;
-		case 3:
-			return angle*180/(PI)+180;
-			break;
-		case 4:
-			return angle*180/(PI)+90;
-			break;
-	}
-}
 
 double kin_map_right(int c,double angle)
 {
@@ -206,10 +187,10 @@ double kin_map_right(int c,double angle)
 	}
 }
 
-void rotate(int d[9],PCA9685 *a)
+void rotate(int d[12],PCA9685 *a)
 {
-    double j[9],temp[9],count[9],flag[9];
-	for(int i=0;i<9;i++)
+    double j[12],temp[12],count[12],flag[12];
+	for(int i=0;i<12;i++)
 	{
     temp[i]=round(regread(i,a));
     j[i]=temp[i];
@@ -228,7 +209,7 @@ void rotate(int d[9],PCA9685 *a)
 	while(true)
 	{
 		
-		for(int i=0;i<9;i++)
+		for(int i=0;i<12;i++)
 		{
 		temp[i]=round(regread(i,a));
 		if(d[i]!=temp[i])
@@ -239,13 +220,13 @@ void rotate(int d[9],PCA9685 *a)
 		else
 		flag[i]=1;
 		}
-		for(int i=0;i<9;i++)
-		{
-		cout<<temp[i]<<"->"<<d[i]<<"..";
-		}
-		cout<<endl;
+		//for(int i=0;i<12;i++)
+		//{
+		//cout<<temp[i]<<"->"<<d[i]<<"..";
+		//}
+		//cout<<endl;
 		usleep(5000);
-		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1)
+		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1 && flag[9]==1 && flag[10]==1 && flag[11]==1)
 			break;
 	}
 }
@@ -321,40 +302,3 @@ void rotate_all(int d[20],PCA9685 *a,PCA9685 *b)
 	}
 }
 
-	 void shake_hand(PCA9685 *pca1,PCA9685 *pca2)
-	 {
-			 int val[20];
-			 val[0]=137;
-			 val[1]=26;
-			 val[2]=105;
-			 val[3]=180;
-			 val[4]=90;	
-			 val[5]=60;
-			 val[6]=60;
-			 val[7]=60;
-			 val[8]=60;
-			 val[9]=53;
-			 val[10]=150;
-			 val[11]=105;
-			 val[12]=90;
-			 val[13]=90;	
-			 val[14]=60;
-			 val[15]=60;
-			 val[16]=60;
-			 val[17]=60;
-			 val[18]=90;
-			 val[19]=90;
-			 rotate_all(val,pca1,pca2);
-			 sleep(2);
-			 for(int i=0;i<2;i++)
-			 {
-				 val[12]=70;
-				 rotate_all(val,pca1,pca2);
-				 usleep(100000);
-				 val[12]=90;			
-				 rotate_all(val,pca1,pca2);
-				 usleep(100000);
-			 }
-			 val[12]=0;
-			 rotate_all(val,pca1,pca2);
-	 }

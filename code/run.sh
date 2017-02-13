@@ -1,2 +1,2 @@
 make
-cd ../build && sudo ./mic && cd ../code
+cd ../build && sudo ./ik && cd ../code

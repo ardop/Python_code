@@ -1,17 +1,25 @@
 import sys 
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
+import subprocess
+import os
 
 #Default angles
-lDefaultAngles = [0, 0, 0, 0, 0]
-rDefaultAngles = [0, 0, 0, 0, 0]
-hDefaultAngles = [0, 0]
+lDefaultAngles = [137, 26, 105, 180, 90]
+rDefaultAngles = [53,150,105,0,90]
+hDefaultAngles = [90, 90]
 
 #Angles to be written into the file
 lAngles = [0, 0, 0, 0, 0]
 rAngles = [0, 0, 0, 0, 0]
 hAngles = [0, 0]
 
+#os.system('gnome -terminal')
+#os.system('cd ../build && sudo ./mic')
+
+#p = subprocess.Popen('sudo ../build/test', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+#for line in p.stdout.readlines():
+	#print line,   
 
 class Motor_Interface(QDialog):
     
@@ -29,7 +37,7 @@ class Motor_Interface(QDialog):
         self.setButton = QPushButton('Set Default Values')
         self.aButton = QPushButton('Move')
 
-
+		
         self.lShoulderText = QLineEdit()
         self.lShoulderText.setFixedSize(80, 20)
         self.lFlapText = QLineEdit()
@@ -131,10 +139,10 @@ class Motor_Interface(QDialog):
                 hAngles[i] = int(hAngles[i])
 
 
-        file = open('angles.txt', 'wb')
+		file = open('ik_angles.txt', 'wb')
+		for angle in rAngles:
+			file.write(str(angle) + '\n')
         for angle in lAngles:
-            file.write(str(angle) + '\n')
-        for angle in rAngles:
             file.write(str(angle) + '\n')
         for angle in hAngles:
             file.write(str(angle) + '\n')
@@ -161,7 +169,7 @@ class Motor_Interface(QDialog):
         self.vHead.setText(str(hDefaultAngles[0]))
         self.hHead.setText(str(hDefaultAngles[1]))
         
-        
+     
 app = QApplication(sys.argv)
 motor = Motor_Interface()
 motor.show()

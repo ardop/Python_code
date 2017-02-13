@@ -112,21 +112,6 @@ bool validate_theta_left(const mat& angles)
 	double theta5 = angles(4);
 	
 	int flag = 0;
-	
-	// if((theta1<=epsilon1) && (theta1>=-(PI-epsilon1)))
-	// 	flag++;
-
-	// if((theta2<=PI/2+epsilon2) && (theta2>=-alpha2))
-	// 	flag++;
-
-	// if((theta3<=PI) && (theta3>=0.0))
-	// 	flag++;
-
-	// if((theta4<=0) && (theta4>=-PI/2))
-	// 	flag++;
-
-	// if((theta5<=PI/2) && (theta5>=-PI/2))
-	// 	flag++;
 
 	if(theta1<=t1bl && theta1>=t1al)
 		flag++;
@@ -167,6 +152,28 @@ double calculate_error(const mat&a, const mat &b)
 	err = err/a.n_cols;
 	err = sqrt(err);
 	return err;
+}
+
+double kin_map_left(int c,double angle)
+{
+	switch(c)
+	{
+		case 1: 		
+			return angle*180/(PI)+137;
+			break;
+		case 2:
+			return 116-angle*180/(PI);
+			break;
+		case 3:
+			return angle*180/(PI)+15;
+			break;
+		case 4:
+			return angle*180/(PI)+180;
+			break;
+		case 5:
+			return angle*180/(PI)+90;
+			break;
+	}
 }
 		
 
@@ -240,12 +247,104 @@ mat calculate_pseudo_inverse(const mat& theta_default, const mat& target)
 
 	}
 
-	target.print("Target:\n");
-	targeti.print("Calculated Target:\n");
+	//target.print("Target:\n");
+	//targeti.print("Calculated Target:\n");
+	//cout << endl;
 
 	return q;
 
 }
+
+mat calculate_ik_jacobian(const mat& t)
+{
+	arma_rng::set_seed_random();
+	
+	float x,y,z, theta1, theta2, theta3, theta4, theta5;
+	
+	mat zero;
+	zero << 0.0;
+	mat minus_one;
+	minus_one << -1.0;
+	
+	double error_threshold = 1.5;
+	
+	while(1)
+	{
+		x = t(0);
+		y = t(1);
+		z = t(2);
+		
+		mat target;
+		target<<x<<y<<z;
+
+		mat theta_default;
+		
+		int iter = 1;
+		double error = 0.0;
+
+		while(true)
+		{
+			
+			mat ar = randu<mat>(1, 5);
+
+			theta1 = (t1bl-t1al)*ar(0) + t1al;
+			theta2 = (t2bl-t2al)*ar(1) + t2al;
+			theta3 = (t3bl-t3al)*ar(2) + t3al; 
+			theta4 = (t4bl-t4al)*ar(3) + t4al;
+			theta5 = (t5bl-t5al)*ar(4) + t5al;
+
+			theta_default << theta1 << theta2 << theta3 << theta4;
+
+			//theta_default.print("Default theta:");
+
+			mat theta_calc = calculate_pseudo_inverse(theta_default, target);
+			// theta_calc.print("Calculated angles: ");			
+
+			theta_calc = join_vert(theta_calc, zero);
+
+			if(validate_theta_left(theta_calc))
+			{
+				//cout << "VALID ANGLES!" << endl;
+				
+				error = calculate_error(target, p_map(calculate_fk_mat(theta_calc)));
+				
+				if(error>=error_threshold)
+				{
+					continue;
+				}
+				
+				//cout << "VALID SOLUTION!" << endl;
+				//cout << "ERROR: " << error << endl;
+				//theta_calc.print("Calculated angles: ");
+				//cout << "ITER: " << iter << endl << endl;
+				
+				cout << "Error: " << error << endl << endl; 
+				return theta_calc;
+				
+				break;
+			}
+			else
+			{
+				//cout << "INVALID" << endl;
+				iter++;
+				
+				if(iter>=100)
+				{
+					//cout << "NO SOLUTION POSSIBLE" << endl;
+					return minus_one;
+					break;
+				}
+
+			}
+		}
+	}
+}
+
+	
+	
+	
+	
+	
 
 mat calculate_ccd(const mat& theta_default, const mat& t)
 {

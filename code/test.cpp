@@ -1,21 +1,10 @@
-#include "motor_control.h"
 #include "kinematics.h"
-#include <sstream>
+#include "motor_control.h"
 
-using namespace std;
-
-int str2num(string s) 
-{  
-    istringstream is(s);
-    int n;
-    is >> n;
-	return n;
-}
 
 int main()
 {
-	int val[12];
-	PCA9685 *pca1 = new PCA9685(0x40);
+    PCA9685 *pca1 = new PCA9685(0x40);
     int err1 = pca1->openPCA9685();
     if (err1 < 0){
         printf("Error: %d", pca1->error);
@@ -42,31 +31,21 @@ int main()
 		//Head
 		pca1->setPWM(10,0,map(90,0,180,servoMin,servoMax));  //up-down
 		pca1->setPWM(11,0,map(90,0,180,servoMin,servoMax));  //sideways
-		
-	while((pca1->error >= 0 || pca1->error >= 0)  && getkey() != 27)
-	{
-		ifstream file("../code/angles.txt");
-		string line;
-		int t_angle,count=0;
-		cout << "starting" << endl;
-		if(file.is_open())
-		{
-			while(getline(file, line))
+    	
+    	pca1->setPWM(12,0,map(180,0,180,servoMin,servoMax));  //sideways 	
+
+		//for convenience : 53 150 105 0 90 137 26 105 180 90 90 90
+		//default : 53 150 105 0 90 137 26 105 180 90 90 90
+
+		int val[12];	
+		while((pca1->error >= 0 || pca1->error >= 0)  && getkey() != 27)
+		{    						
+			for(int i=0;i<12;i++)
 			{
-				t_angle = str2num(line);
-				val[count]=t_angle;
-				count++;
-				if(count==12)
-					break;
-			}	
-		file.close();
-		}
-		else
-		{
-			cout << "Could not open file" << endl;
-		}
-		rotate(val,pca1);
+				cin>>val[i];
+			}
+			rotate(val,pca1);
+		}		
 	}
 	pca1->closePCA9685();
-}
 }
