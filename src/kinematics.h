@@ -14,16 +14,16 @@
 #define epsilon2 0.1745329252
 #define alpha2 0.5235987756
 
-#define t1bl 0.0 
-#define t1al -(PI-0.523598)
-#define t2bl 1.5707+0.174532
-#define t2al -0.523598 
+#define t1bl PI/2
+#define t1al -PI/2
+#define t2bl PI/2
+#define t2al 0.0
 #define t3bl PI
 #define t3al 0.0
 #define t4bl 0.0
-#define t4al -1.5707
-#define t5bl 1.5707
-#define t5al -1.5707
+#define t4al -PI/2
+#define t5bl PI/2
+#define t5al -PI/2
 
 
 using namespace arma;
@@ -154,23 +154,45 @@ double calculate_error(const mat&a, const mat &b)
 	return err;
 }
 
-double kin_map_left(int c,double angle)
+double kin_map_left(int c, double angle)
 {
 	switch(c)
 	{
 		case 1: 		
-			return angle*180/(PI)+137;
+			return angle*180/(PI)+90;
 			break;
 		case 2:
-			return 116-angle*180/(PI);
+			return 90-angle*180/(PI);
 			break;
 		case 3:
-			return angle*180/(PI)+15;
+			return 180-angle*180/(PI);
 			break;
 		case 4:
-			return angle*180/(PI)+180;
+			return angle*180/(PI)+90;
 			break;
 		case 5:
+			return angle*180/(PI)+90;
+			break;
+	}
+}
+
+double kin_map_right(int c,double angle)
+{
+	switch(c)
+	{
+		case 0: 		
+			return angle*180/(PI)+233;
+			break;
+		case 1:
+			return angle*180/(PI)+244;
+			break;
+		case 2:
+			return angle*180/(PI)+15;
+			break;
+		case 3:
+			return angle*180/(PI)+180;
+			break;
+		case 4:
 			return angle*180/(PI)+90;
 			break;
 	}

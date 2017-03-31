@@ -24,28 +24,28 @@ int main()
         printf("PCA9685 Device Address: 0x%02X\n",pca1->kI2CAddress);
         pca1->setAllPWM(0,0) ;
         pca1->reset() ;
-        pca1->setPWMFrequency(50) ;
+        pca1->setPWMFrequency(60) ;
         // 27 is the ESC keyOC
         printf("Hit ESC key to exit\n");
         
         //Right hand
-		pca1->setPWM(0,0,map(53,0,180,servoMin,servoMax));  //servo 1
-		pca1->setPWM(1,0,map(150,0,180,servoMin,servoMax));  // servo 2
-    	pca1->setPWM(2,0,map(105,0,180,servoMin,servoMax));  //servo 3
-    	pca1->setPWM(3,0,map(0,0,180,servoMin,servoMax));  //servo 4
-    	pca1->setPWM(4,0,map(90,0,180,servoMin,servoMax));  //servo 5
+		pca1->setPWM(0,0,map(53,0,180,servoMin[0],servoMax[0]));  //servo 1
+		pca1->setPWM(1,0,map(150,0,180,servoMin[1],servoMax[1]));  // servo 2
+    	pca1->setPWM(2,0,map(105,0,180,servoMin[2],servoMax[2]));  //servo 3
+    	pca1->setPWM(3,0,map(0,0,180,servoMin[3],servoMax[3]));  //servo 4
+    	pca1->setPWM(4,0,map(90,0,180,servoMin[4],servoMax[4]));  //servo 5
     	//Left hand
-		pca1->setPWM(5,0,map(137,0,180,servoMin,servoMax)); //servo 1
-		pca1->setPWM(6,0,map(26,0,180,servoMin,servoMax));  //servo 2
-    	pca1->setPWM(7,0,map(105,0,180,servoMin,servoMax));  //servo 3
-    	pca1->setPWM(8,0,map(180,0,180,servoMin,servoMax));  //servo 4
-    	pca1->setPWM(9,0,map(90,0,180,servoMin,servoMax));  //servo 5
+		pca1->setPWM(5,0,map(90,0,180,servoMin[5],servoMax[5])); //servo 1
+		pca1->setPWM(6,0,map(0,0,90,servoMin[6],servoMax[6]));  //servo 2
+    	pca1->setPWM(7,0,map(90,0,180,servoMin[7],servoMax[7]));  //servo 3
+    	pca1->setPWM(8,0,map(90,0,90,servoMin[8],servoMax[8]));  //servo 4
+    	pca1->setPWM(9,0,map(90,0,180,servoMin[9],servoMax[9]));  //servo 5
 		//Head
-		pca1->setPWM(10,0,map(90,0,180,servoMin,servoMax));  //up-down
-		pca1->setPWM(11,0,map(90,0,180,servoMin,servoMax));  //sideways
+		pca1->setPWM(10,0,map(90,0,180,servoMin[10],servoMax[10]));  //up-down
+		pca1->setPWM(11,0,map(90,0,180,servoMin[11],servoMax[11]));  //sideways
 		
-	while((pca1->error >= 0 || pca1->error >= 0)  && getkey() != 27)
-	{
+	//while((pca1->error >= 0 || pca1->error >= 0)  && getkey() != 27)
+	//{
 		ifstream file("../code/ik_angles.txt");
 		string line;
 		double t_angle;
@@ -106,7 +106,7 @@ int main()
 			cout << endl << endl;
 			rotate(val,pca1);
 		}
-	}
+	//}
 	pca1->closePCA9685();
 }
 }

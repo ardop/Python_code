@@ -5,8 +5,8 @@ import subprocess
 import os
 
 #Default angles
-lDefaultAngles = [137, 26, 105, 180, 90]
-rDefaultAngles = [53,150,105,0,90]
+lDefaultAngles = [90, 0, 90, 90, 90]
+rDefaultAngles = [90, 0, 90, 90, 90]
 hDefaultAngles = [90, 90]
 
 #Angles to be written into the file
@@ -14,7 +14,8 @@ lAngles = [0, 0, 0, 0, 0]
 rAngles = [0, 0, 0, 0, 0]
 hAngles = [0, 0]
 
-#os.system('gnome -terminal')
+#os.system('gnome-terminal & disown')
+#os.system('gnome-terminal --window-with-profile=karun -e echo ubuntu | sudo -S ../build/mic')
 #os.system('cd ../build && sudo ./mic')
 
 #p = subprocess.Popen('sudo ../build/test', shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -139,7 +140,7 @@ class Motor_Interface(QDialog):
                 hAngles[i] = int(hAngles[i])
 
 
-		file = open('ik_angles.txt', 'wb')
+		file = open('angles.txt', 'wb')
 		for angle in rAngles:
 			file.write(str(angle) + '\n')
         for angle in lAngles:

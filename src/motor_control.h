@@ -40,12 +40,11 @@ using namespace std;
 // Calibrated for a Robot Geek RGS-13 Servo
 // Make sure these are appropriate for the servo being used!
 
- int servoMin = 100;
- int servoMax = 510;
-// int servoMin = 135;
-// int servoMax = 545;
-//int servoMin=1000;
-//int servoMax=2000;
+
+int servoMin[12]={140,135,172,155,160,140,135,172,155,160,150,150};
+int servoMax[12]={650,390,659,410,675,650,390,659,410,675,650,650};
+int max_angle[12]={180,90,180,90,180,180,90,180,90,180,180,180};
+
 int getkey() {
     int character;
     struct termios orig_term_attr;
@@ -95,210 +94,99 @@ double regread(int chan ,PCA9685 *a)
 	read2=a->getPWMofh(chan);
 	usleep(100);
 	read=(read2*256)+read1;
-	dread=invmap(read,0,180,servoMin,servoMax);
+	dread=invmap(read,0,max_angle[chan],servoMin[chan],servoMax[chan]);
 	return dread;
 }
-//void rotate(int d,int chan, PCA9685 *a)
+//void rotate_multi(int d[5],PCA9685 *a)
 //{
-    //int temp,count;
-    //temp=regread(chan,a);
-    //if(temp>d)
+    //double j[5],temp[5],count[5],flag[5];
+	//for(int i=0;i<5;i++)
+	//{
+    //temp[i]=round(regread(i,a));
+    //j[i]=temp[i];
+    //flag[i]=0;
+    //if(temp[i]>d[i])
     //{
-	//count=-1;
+	//count[i]=-1;
     //}
-    //else if(temp<d)
+    //else if(temp[i]<d[i])
     //{
-	//count=1;
+	//count[i]=1;
     //}
-    //else if(temp==d)
-	//count=0;
-  //for(int i=temp+1;i!=d;i+=count)
-    //{
-	//temp=regread(chan,a);
-	//a->setPWM(chan,0,map(i,0,180,servoMin,servoMax));
-	//usleep(40000);
-	//cout<<temp<<"="<<d<<' '<<i<<endl;
-    //}
-//}
-void rotate_multi(int d[5],PCA9685 *a)
-{
-    double j[5],temp[5],count[5],flag[5];
-	for(int i=0;i<5;i++)
-	{
-    temp[i]=round(regread(i,a));
-    j[i]=temp[i];
-    flag[i]=0;
-    if(temp[i]>d[i])
-    {
-	count[i]=-1;
-    }
-    else if(temp[i]<d[i])
-    {
-	count[i]=1;
-    }
-    else if(temp[i]==d[i])
-	count[i]=0;
-	}
-	while(true)
-	{
+    //else if(temp[i]==d[i])
+	//count[i]=0;
+	//}
+	//while(true)
+	//{
 		
-	for(int i=0;i<5;i++)
-	{
-	temp[i]=round(regread(i,a));
-	if(d[i]!=temp[i])
-	{	
-		j[i]+=count[i];
-		a->setPWM(i,0,map(j[i],0,180,servoMin,servoMax));
-	}
-	else
-	flag[i]=1;
-	}
-	for(int i=0;i<5;i++)
-	{
-	cout<<temp[i]<<"->"<<d[i]<<" NEXT ";
-	}
-	cout<<endl;
-	usleep(5000);
-	if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 &&flag[4]==1)
-	break;
-	}
-}
+	//for(int i=0;i<5;i++)
+	//{
+	//temp[i]=round(regread(i,a));
+	//if(d[i]!=temp[i])
+	//{	
+		//j[i]+=count[i];
+		//a->setPWM(i,0,map(j[i],0,180,servoMin,servoMax));
+	//}
+	//else
+	//flag[i]=1;
+	//}
+	//for(int i=0;i<5;i++)
+	//{
+	//cout<<temp[i]<<"->"<<d[i]<<" NEXT ";
+	//}
+	//cout<<endl;
+	//usleep(5000);
+	//if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 &&flag[4]==1)
+	//break;
+	//}
+//}
 
 
-double kin_map_right(int c,double angle)
-{
-	switch(c)
-	{
-		case 0: 		
-			return angle*180/(PI)+233;
-			break;
-		case 1:
-			return angle*180/(PI)+244;
-			break;
-		case 2:
-			return angle*180/(PI)+15;
-			break;
-		case 3:
-			return angle*180/(PI)+180;
-			break;
-		case 4:
-			return angle*180/(PI)+90;
-			break;
-	}
-}
+
 
 void rotate(int d[12],PCA9685 *a)
 {
-    double j[12],temp[12],count[12],flag[12];
+    double j[12],temp[12],count[12],flag[12];   
 	for(int i=0;i<12;i++)
 	{
-    temp[i]=round(regread(i,a));
-    j[i]=temp[i];
-    flag[i]=0;
-    if(temp[i]>d[i])
-    {
-	count[i]=-1;
-    }
-    else if(temp[i]<d[i])
-    {
-	count[i]=1;
-    }
-    else if(temp[i]==d[i])
-	count[i]=0;
+		temp[i]=round(regread(i,a));
+		j[i]=temp[i];
+		flag[i]=0;
+		if(temp[i]>d[i])
+		{
+		count[i]=-1;
+		}
+		else if(temp[i]<d[i])
+		{
+		count[i]=1;
+		}
+		else if(temp[i]==d[i])
+		count[i]=0;
 	}
+	
 	while(true)
 	{
-		
 		for(int i=0;i<12;i++)
 		{
 		temp[i]=round(regread(i,a));
 		if(d[i]!=temp[i])
 		{	
 			j[i]+=count[i];
-			a->setPWM(i,0,map(j[i],0,180,servoMin,servoMax));
+			a->setPWM(i,0,map(j[i],0,max_angle[i],servoMin[i],servoMax[i]));
 		}
 		else
 		flag[i]=1;
 		}
-		//for(int i=0;i<12;i++)
-		//{
-		//cout<<temp[i]<<"->"<<d[i]<<"..";
-		//}
-		//cout<<endl;
+		for(int i=0;i<12;i++)
+		{
+		cout<<temp[i]<<"->"<<d[i]<<"..";
+		}
+		cout<<endl;
 		usleep(5000);
 		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1 && flag[9]==1 && flag[10]==1 && flag[11]==1)
 			break;
 	}
 }
 
-void rotate_all(int d[20],PCA9685 *a,PCA9685 *b)
-{
-    double j[20],temp[20],count[20],flag[20];
-	for(int i=0;i<9;i++)
-	{
-    temp[i]=round(regread(i,a));
-    j[i]=temp[i];
-    flag[i]=0;
-    if(temp[i]>d[i])
-    {
-	count[i]=-1;
-    }
-    else if(temp[i]<d[i])
-    {
-	count[i]=1;
-    }
-    else if(temp[i]==d[i])
-	count[i]=0;
-	}
-	for(int i=9;i<20;i++) //second object (b) has the head servo connections.
-	{
-    temp[i]=round(regread((i-9),b));
-    j[i]=temp[i];
-    flag[i]=0;
-    if(temp[i]>d[i])
-    {
-	count[i]=-1;
-    }
-    else if(temp[i]<d[i])
-    {
-	count[i]=1;
-    }
-    else if(temp[i]==d[i])
-	count[i]=0;
-	}
-	
-	while(true)
-	{
-		for(int i=0;i<9;i++)
-		{
-		temp[i]=round(regread(i,a));
-		if(d[i]!=temp[i])
-		{	
-			j[i]+=count[i];
-			a->setPWM(i,0,map(j[i],0,180,servoMin,servoMax));
-		}
-		else
-		flag[i]=1;
-		}
-		for(int i=9;i<20;i++)
-		{
-		temp[i]=round(regread((i-9),b));
-		if(d[i]!=temp[i])
-		{	
-			j[i]+=count[i];
-			b->setPWM((i-9),0,map(j[i],0,180,servoMin,servoMax));
-		}
-		else
-		flag[i]=1;
-		}
-		for(int i=0;i<20;i++)
-		{
-		cout<<temp[i]<<"->"<<d[i]<<"..";
-		}
-		cout<<endl;
-		usleep(1000);
-		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1 && flag[9]==1 &&flag[10]==1 && flag[11]==1 && flag[12]==1 && flag[13]==1 && flag[14]==1 && flag[15]==1 && flag[16]==1 && flag[17]==1 && flag[18]==1 && flag[19]==1)
-			break;
-	}
-}
+
 
