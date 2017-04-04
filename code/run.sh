@@ -1,2 +1,2 @@
 make
-cd ../build && sudo ./ik && cd ../code
+cd ../build && sudo ./ik_interface && cd ../code

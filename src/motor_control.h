@@ -97,52 +97,6 @@ double regread(int chan ,PCA9685 *a)
 	dread=invmap(read,0,max_angle[chan],servoMin[chan],servoMax[chan]);
 	return dread;
 }
-//void rotate_multi(int d[5],PCA9685 *a)
-//{
-    //double j[5],temp[5],count[5],flag[5];
-	//for(int i=0;i<5;i++)
-	//{
-    //temp[i]=round(regread(i,a));
-    //j[i]=temp[i];
-    //flag[i]=0;
-    //if(temp[i]>d[i])
-    //{
-	//count[i]=-1;
-    //}
-    //else if(temp[i]<d[i])
-    //{
-	//count[i]=1;
-    //}
-    //else if(temp[i]==d[i])
-	//count[i]=0;
-	//}
-	//while(true)
-	//{
-		
-	//for(int i=0;i<5;i++)
-	//{
-	//temp[i]=round(regread(i,a));
-	//if(d[i]!=temp[i])
-	//{	
-		//j[i]+=count[i];
-		//a->setPWM(i,0,map(j[i],0,180,servoMin,servoMax));
-	//}
-	//else
-	//flag[i]=1;
-	//}
-	//for(int i=0;i<5;i++)
-	//{
-	//cout<<temp[i]<<"->"<<d[i]<<" NEXT ";
-	//}
-	//cout<<endl;
-	//usleep(5000);
-	//if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 &&flag[4]==1)
-	//break;
-	//}
-//}
-
-
-
 
 void rotate(int d[12],PCA9685 *a)
 {

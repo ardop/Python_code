@@ -154,6 +154,7 @@ double calculate_error(const mat&a, const mat &b)
 	return err;
 }
 
+// Convert from kinematic angles to pca motor angles
 double kin_map_left(int c, double angle)
 {
 	switch(c)
@@ -255,7 +256,7 @@ mat calculate_pseudo_inverse(const mat& theta_default, const mat& target)
 		theta2 = q(1);
 		theta3 = q(2);
 		theta4 = q(3);
-		theta5 = 0.0;
+		theta5 = 0.0; // Rotation of the last angle doest change the end effector position. It only changes the orientation
 
 		a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
 		b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
@@ -277,8 +278,9 @@ mat calculate_pseudo_inverse(const mat& theta_default, const mat& target)
 
 }
 
-mat calculate_ik_jacobian(const mat& t)
+mat calculate_ik_jacobian(const mat& t, bool is_theta_default_fixed, const mat& theta_default_fixed)
 {
+	// If the default angles need to be fixed to a given value (Motion Planning), then fixed_theta_default is set to true and a fixed value is passed
 	arma_rng::set_seed_random();
 	
 	float x,y,z, theta1, theta2, theta3, theta4, theta5;
@@ -288,7 +290,7 @@ mat calculate_ik_jacobian(const mat& t)
 	mat minus_one;
 	minus_one << -1.0;
 	
-	double error_threshold = 1.5;
+	double error_threshold = 1.0;
 	
 	while(1)
 	{
@@ -314,8 +316,15 @@ mat calculate_ik_jacobian(const mat& t)
 			theta3 = (t3bl-t3al)*ar(2) + t3al; 
 			theta4 = (t4bl-t4al)*ar(3) + t4al;
 			theta5 = (t5bl-t5al)*ar(4) + t5al;
-
-			theta_default << theta1 << theta2 << theta3 << theta4;
+			
+			if(is_theta_default_fixed)
+			{
+				theta_default = theta_default_fixed; // fixed theta default
+			}
+			else
+			{
+				theta_default << theta1 << theta2 << theta3 << theta4;
+			}
 
 			//theta_default.print("Default theta:");
 

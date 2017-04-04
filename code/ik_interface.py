@@ -1,4 +1,6 @@
 import sys 
+import os
+import thread
 from PyQt4.QtGui import *
 from PyQt4.QtCore import *
 
@@ -17,7 +19,7 @@ defaultTarget = []
 
 #Target values
 target = [0, 0, 0]
- 
+
 
 class Motor_Interface(QDialog):
     
@@ -84,10 +86,34 @@ class Motor_Interface(QDialog):
 		file.close()
 		
 		print "Written"
+		
+def cpp_code():
+	
+	#os.system('gnome-terminal')
+	#os.system('gnome-terminal -e cd ../build && echo ubuntu | sudo -S ./ik_interface && cd ../code')
+	#os.system("gnome-terminal -e --working-directory=/home/ubuntu/ardop/kinematics/build -e 'sudo ./ik_interface'")
+	os.system('xterm -hold -e "cd ../build && echo ubuntu | sudo -S ./ik_interface && cd ../code"')
+		
 
-        
-     
-app = QApplication(sys.argv)
-motor = Motor_Interface()
-motor.show()
-app.exec_()
+def ui_code():
+	app = QApplication(sys.argv)
+	motor = Motor_Interface()
+	motor.show()
+	app.exec_()
+	
+	       
+try:
+	thread.start_new_thread(cpp_code, ())
+	thread.start_new_thread(ui_code, ())
+	
+except:
+	print 'Failed'
+	
+while 1:
+	pass
+	
+	
+	   
+
+
+
