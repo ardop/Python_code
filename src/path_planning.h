@@ -68,6 +68,9 @@ mat joint_path_linear(const mat& theta_a, const mat& theta_b, int n0, int nf)
 	
 	// solving
 	x = solve(A, B);
+
+	// Verify the matrices by printing
+	print_check_matrix(A, B); 
 	
 	for(int i=n0;i<=nf;i++)
 	{
@@ -89,7 +92,46 @@ mat joint_path_linear(const mat& theta_a, const mat& theta_b, int n0, int nf)
 	
 }
 
-mat joint_path_cubic(const mat& theta_a, const mat& theta_b, 
+mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, double dq0, double dqf)
+{
+	// Time matrix
+	mat A;
+	A << pow(n0, 3) << pow(n0, 2) << n0 << 1 << endr << 3*pow(n0, 2) << 2*n0 << 1 << 0 << endr << pow(nf, 3) << pow(nf, 2) << nf << 1 << endr << 3*pow(nf, 2) << 2*nf << 1 << 0;
+
+	// Function parameter matrix
+	mat x;
+
+	// Velocity vectors
+	mat dq0_mat, dqf_mat;
+
+	dq0_mat << dq0 << dq0 << dq0 << dq0;
+	dqf_mat << dqf << dqf << dqf << dqf;
+
+
+	// Constraint matrix
+	mat B;
+	B = join_vert(join_vert(theta_a.cols(1, 4), dq0_mat), join_vert(theta_b.cols(1, 4), dqf_mat));
+
+	x = solve(A, B);
+
+	print_check_matrix(A, B);
+
+	for(int i=n0;i<=nf;i++)
+	{
+		mat a;
+		a << pow(i, 3) << pow(i, 2) << i << 1;
+		
+		mat theta_c;
+		theta_c = a*x;
+		theta_c = join_horiz(theta_c, mat_zero);
+		
+		// Appending to the matrix being returned
+		configuration_history = join_vert(configuration_history; theta_c);
+	}
+
+	return configuration_history;
+
+}
 
 
 
