@@ -32,6 +32,8 @@ SOFTWARE.
 #include <iostream>
 #include <math.h>
 #include <fstream>
+#include "kinematics.h"
+#include "path_planning.h"
 
 #define PI 3.14159265358979323846
 
@@ -140,6 +142,11 @@ void rotate(int d[12],PCA9685 *a)
 		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1 && flag[9]==1 && flag[10]==1 && flag[11]==1)
 			break;
 	}
+}
+
+void plan_path(int d[12], int path_type, int model_type, PCA9685 *a)
+{
+	
 }
 
 

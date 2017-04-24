@@ -22,7 +22,10 @@ point = [0, 0, 0]
 
 point_history = []
 
-selected_motion = ""
+selected_path_type = ""
+selected_model_type = ""
+selected_path_type_number = 0
+selected_model_type_number = 0
 
 
 class Motion_IK_Interface(QDialog):
@@ -32,7 +35,9 @@ class Motion_IK_Interface(QDialog):
 		super(Motion_IK_Interface,self).__init__(parent)
 		
 		pointLabel = QLabel('Point Coordinates')
-		motionLabel = QLabel('Motion Type ')
+		pathLabel = QLabel('Path Type')
+		modelLabel = QLabel('Path Model')
+		
 		xLabel = QLabel('x ')
 		yLabel = QLabel('y ')
 		zLabel = QLabel('z ')
@@ -41,8 +46,11 @@ class Motion_IK_Interface(QDialog):
 		
 		self.addPointButton = QPushButton('Add Point')
 
-		self.selectMotion = QComboBox()
-		self.selectMotion.addItems(['Linear', 'Quadratic'])
+		self.selectPath= QComboBox()
+		self.selectPath.addItems(['Joint', 'Cartesian'])
+		
+		self.selectModel = QComboBox()
+		self.selectModel.addItems(['Uniform', 'Linear', 'Cubic', 'Piecewise'])
 
 		self.pointHistoryScroll = QScrollArea()
 		self.pointHistoryScroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -62,29 +70,58 @@ class Motion_IK_Interface(QDialog):
 		
 		grid = QGridLayout()
 
-		grid.addWidget(motionLabel, 0, 0)
-		grid.addWidget(self.selectMotion, 0, 1)
-		grid.addWidget(pointLabel, 1, 0)
-		grid.addWidget(xLabel, 2, 0)
-		grid.addWidget(yLabel, 3, 0)
-		grid.addWidget(zLabel, 4, 0)
-		grid.addWidget(self.xTargetText, 2, 1)
-		grid.addWidget(self.yTargetText, 3, 1)
-		grid.addWidget(self.zTargetText, 4, 1)
-		grid.addWidget(self.addPointButton, 5, 0)
-		grid.addWidget(self.pointHistoryScroll, 6, 0)
+		grid.addWidget(pathLabel, 0, 0)
+		grid.addWidget(self.selectPath, 0, 1)
+		grid.addWidget(modelLabel, 1, 0)
+		grid.addWidget(self.selectModel, 1, 1)
+		grid.addWidget(pointLabel, 2, 0)
+		grid.addWidget(xLabel, 3, 0)
+		grid.addWidget(yLabel, 4, 0)
+		grid.addWidget(zLabel, 5, 0)
+		grid.addWidget(self.xTargetText, 3, 1)
+		grid.addWidget(self.yTargetText, 4, 1)
+		grid.addWidget(self.zTargetText, 5, 1)
+		grid.addWidget(self.addPointButton, 6, 0)
+		grid.addWidget(self.pointHistoryScroll, 7, 0)
 
 		self.connect(self.addPointButton, SIGNAL("clicked()"), self.goToPoint)	
-		# self.selectMotion.currentIndexChanged.connect(self.selectMotionChange)
+		
+		self.selectPath.currentIndexChanged.connect(self.selectPathChange)
+		self.selectModel.currentIndexChanged.connect(self.selectModelChange)
 
 		self.setLayout(grid)
 		self.setWindowTitle("Motion Inverse Kinematics")
 		self.setGeometry(500,300,400,100)
 
-	def selectMotionChange(self, i):
+	def selectPathChange(self, i):
 		
-		selected_motion = self.selectMotion.currentText()
-		print selected_motion
+		global selected_path_type
+		global selected_path_type_number
+		global selected_model_type
+		global selected_model_type_number
+		
+		selected_path_type = self.selectPath.currentText()
+		selected_path_type_number = i
+		
+		if selected_path_type == 'Joint':
+			self.selectModel.clear()
+			self.selectModel.addItems(['Uniform', 'Linear', 'Cubic', 'Piecewise'])
+		elif selected_path_type == 'Cartesian':
+			self.selectModel.clear()
+			self.selectModel.addItems(['Straight-line', 'Straight-line with velocity and acceleration control'])
+			
+	def selectModelChange(self, i):
+		
+		global selected_path_type
+		global selected_path_type_number
+		global selected_model_type
+		global selected_model_type_number
+		
+		selected_model_type = self.selectModel.currentText()
+		selected_model_type_number = i
+		
+		#print selected_path_type, selected_path_type_number
+		#print selected_model_type, selected_model_type_number		
 
 
 
@@ -107,6 +144,9 @@ class Motion_IK_Interface(QDialog):
 			file = open('motion_ik_angles.txt', 'wb')
 			for t in point:
 				file.write(str(t) + '\n')
+				
+			file.write(str(selected_path_type_number) + '\n')
+			file.write(str(selected_model_type_number) + '\n')
 			
 			
 			file.close()

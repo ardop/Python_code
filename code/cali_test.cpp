@@ -11,8 +11,8 @@
 
 using namespace std;
 
- int servoMin = 135;
- int servoMax = 390;
+ int servoMin = 160;
+ int servoMax = 662;
  
  int getkey() {
     int character;
@@ -61,7 +61,7 @@ int main()
         
 		//pca1->setPWM(0,0,servoMin);  //servo 1
 		//pca1->setPWM(0,0,servoMax);
-		pca1->setPWM(0,0,map(90,0,90,servoMin,servoMax));
+		pca1->setPWM(0,0,map(90,0,180,servoMin,servoMax));
 	pca1->closePCA9685();
 }
 }
