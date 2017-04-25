@@ -64,7 +64,7 @@ mat joint_path_linear(const mat& theta_a, const mat& theta_b, int n0, int nf)
 	
 	// Constraint matrix
 	mat B;
-	B = join_vert(theta_a.cols(1, 4), theta_b.cols(1, 4));
+	B = join_vert(theta_a, theta_b);
 	
 	// solving
 	x = solve(A, B);
@@ -79,7 +79,6 @@ mat joint_path_linear(const mat& theta_a, const mat& theta_b, int n0, int nf)
 		
 		mat theta_c;
 		theta_c = a*x;
-		theta_c = join_horiz(theta_c, zero_mat);
 		
 		// Appending to the matrix being returned
 		configuration_history = join_vert(configuration_history; theta_c);
@@ -106,13 +105,13 @@ mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, dou
 	// Velocity vectors
 	mat dq0_mat, dqf_mat;
 
-	dq0_mat << dq0 << dq0 << dq0 << dq0;
-	dqf_mat << dqf << dqf << dqf << dqf;
+	dq0_mat << dq0 << dq0 << dq0 << dq0 << dq0;
+	dqf_mat << dqf << dqf << dqf << dqf << dqf;
 
 
 	// Constraint matrix
 	mat B;
-	B = join_vert(join_vert(theta_a.cols(1, 4), dq0_mat), join_vert(theta_b.cols(1, 4), dqf_mat));
+	B = join_vert(join_vert(theta_a, dq0_mat), join_vert(theta_b, dqf_mat));
 
 	x = solve(A, B);
 
@@ -125,7 +124,6 @@ mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, dou
 		
 		mat theta_c;
 		theta_c = a*x;
-		theta_c = join_horiz(theta_c, zero_mat);
 		
 		// Appending to the matrix being returned
 		configuration_history = join_vert(configuration_history; theta_c);
@@ -148,11 +146,11 @@ mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1,
 	mat dq0_mat, dqf_mat;
 
 	// Setting initial velocity and final velocity to zero
-	dq0_mat << 0 << 0 << 0 << 0;
-	dqf_mat << 0 << 0 << 0 << 0;
+	dq0_mat << 0 << 0 << 0 << 0 << 0;
+	dqf_mat << 0 << 0 << 0 << 0 << 0;
 
 	mat B0;
-	B0 = join_vert(join_vert(theta_a.cols(1, 4), dq0_mat), join_vert(theta_b.cols(1, 4), dqf_mat));
+	B0 = join_vert(join_vert(theta_a, dq0_mat), join_vert(theta_b, dqf_mat));
 
 	mat x0;
 	x0 = solve(A0, B0);
@@ -178,7 +176,7 @@ mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1,
 	A1 << pow(n0, 3) << pow(n0, 2) << n0 << 1 << endr << 3*pow(n0, 2) << 2*n0 << 1 << 0 << endr << pow(n1, 3) << pow(n1, 2) << n1 << 1 << endr << 3*pow(n1, 2) << 2*n1 << 1 << 0;
 
 	mat B1;
-	B1 = join_vert(join_vert(theta_a.cols(1, 4), dq0_mat), join_vert(tmp_q1, dqc));
+	B1 = join_vert(join_vert(theta_a, dq0_mat), join_vert(tmp_q1, dqc));
 
 	mat x1;
 	x1 = solve(A1, B1);
@@ -201,7 +199,7 @@ mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1,
 	A3 << pow(nf, 3) << pow(nf, 2) << nf << 1 << endr << 3*pow(nf, 2) << 2*nf << 1 << 0 << endr << pow(n2, 3) << pow(n2, 2) << n2 << 1 << endr << 3*pow(n2, 2) << 2*n2 << 1 << 0;
 
 	mat B3;
-	B3 = join_vert(join_vert(theta_b.cols(1, 4), dqf_mat), join_vert(tmp_q2, dqc));
+	B3 = join_vert(join_vert(theta_b, dqf_mat), join_vert(tmp_q2, dqc));
 
 	mat x3;
 	x3 = solve(A3, B3);
@@ -219,7 +217,6 @@ mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1,
 
 		mat theta_c;
 		theta_c = a*x1;
-		theta_c = join_horiz(theta_c, zero_mat);
 		
 		// Appending to the matrix being returned
 		configuration_history = join_vert(configuration_history; theta_c);
@@ -232,7 +229,6 @@ mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1,
 
 		mat theta_c;
 		theta_c = a*x2;
-		theta_c = join_horiz(theta_c, zero_mat);
 		
 		// Appending to the matrix being returned
 		configuration_history = join_vert(configuration_history; theta_c);
@@ -245,7 +241,6 @@ mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1,
 
 		mat theta_c;
 		theta_c = a*x3;
-		theta_c = join_horiz(theta_c, zero_mat);
 		
 		// Appending to the matrix being returned
 		configuration_history = join_vert(configuration_history; theta_c);

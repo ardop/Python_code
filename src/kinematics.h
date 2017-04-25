@@ -101,6 +101,34 @@ double rad2deg(double rad)
 	return deg;
 }
 
+mat deg2rad(const mat& deg)
+{
+	mat temp_ret;
+
+	// Assuming deg is a row vector
+
+	for(int i=0;i<deg.n_cols;i++)
+	{
+		temp_ret << deg2rad(deg(i));
+	}
+
+	return temp_ret;
+}
+
+mat rad2deg(const mat& rad)
+{
+	mat temp_ret;
+
+	// Assuming deg is a row vector
+
+	for(int i=0;i<deg.n_cols;i++)
+	{
+		temp_ret << rad2deg(rad(i));
+	}
+
+	return temp_ret;
+}
+
 
 
 bool validate_theta_left(const mat& angles)
@@ -163,16 +191,39 @@ double kin_map_left(int c, double angle)
 			return angle*180/(PI)+90;
 			break;
 		case 2:
+			return 90 - angle*180/(PI);
+			break;
+		case 3:
+			return 180 - angle*180/(PI);
+			break;
+		case 4:
+			return angle*180/(PI) + 90;
+			break;
+		case 5:
+			return angle*180/(PI) + 90;
+			break;
+	}
+}
+
+// Convert from pca motor angles to kinematic angles
+double inv_kin_map_left(int c, double angle)
+{
+	switch(c)
+	{
+		case 1:
+			return angle*180/(PI) - 90;
+			break;
+		case 2:
 			return 90-angle*180/(PI);
 			break;
 		case 3:
 			return 180-angle*180/(PI);
 			break;
 		case 4:
-			return angle*180/(PI)+90;
+			return angle*180/(PI) - 90;
 			break;
 		case 5:
-			return angle*180/(PI)+90;
+			return angle*180/(PI) - 90;
 			break;
 	}
 }
