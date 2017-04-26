@@ -33,7 +33,7 @@ SOFTWARE.
 #include <math.h>
 #include <fstream>
 #include "kinematics.h"
-#include "path_planning.h"
+//#include "path_planning.h"
 
 #define PI 3.14159265358979323846
 
@@ -43,9 +43,9 @@ using namespace std;
 // Make sure these are appropriate for the servo being used!
 
 
-int servoMin[12]={140,135,172,155,160,140,135,172,155,160,150,150};
-int servoMax[12]={650,390,659,410,675,650,390,659,410,675,650,650};
-int max_angle[12]={180,90,180,90,180,180,90,180,90,180,180,180};
+int servoMin[14]={120, 135, 172, 155, 160, 150, 120, 135, 172, 155, 160, 150, 150, 150};
+int servoMax[14]={612, 390, 659, 410, 675, 370, 612, 390, 659, 410, 675, 370, 650, 650};
+int max_angle[14]={180, 90, 180, 90, 180, 90, 180, 90, 180, 90, 180, 90, 180, 180};
 
 int getkey() {
     int character;
@@ -100,10 +100,10 @@ double regread(int chan ,PCA9685 *a)
 	return dread;
 }
 
-void rotate(int d[12],PCA9685 *a)
+void rotate(int d[14],PCA9685 *a)
 {
-    double j[12],temp[12],count[12],flag[12];   
-	for(int i=0;i<12;i++)
+    double j[14],temp[14],count[14],flag[14];   
+	for(int i=0;i<14;i++)
 	{
 		temp[i]=round(regread(i,a));
 		j[i]=temp[i];
@@ -122,7 +122,7 @@ void rotate(int d[12],PCA9685 *a)
 	
 	while(true)
 	{
-		for(int i=0;i<12;i++)
+		for(int i=0;i<14;i++)
 		{
 		temp[i]=round(regread(i,a));
 		if(d[i]!=temp[i])
@@ -133,93 +133,93 @@ void rotate(int d[12],PCA9685 *a)
 		else
 		flag[i]=1;
 		}
-		for(int i=0;i<12;i++)
+		for(int i=0;i<14;i++)
 		{
 		cout<<temp[i]<<"->"<<d[i]<<"..";
 		}
 		cout<<endl;
 		usleep(5000);
-		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1 && flag[9]==1 && flag[10]==1 && flag[11]==1)
+		if(flag[0]==1 &&flag[1]==1 && flag[2]==1 && flag[3]==1 && flag[4]==1 && flag[5]==1 && flag[6]==1 && flag[7]==1 && flag[8]==1 && flag[9]==1 && flag[10]==1 && flag[11]==1 && flag[12]==1 && flag[13]==1)
 			break;
 	}
 }
 
-void execute_path(int d[12], int path_type, int model_type, PCA9685 *a)
-{
-	// computing theta_a and theta_b
-	// The angles have to be inversed mapped to kinematic angles
-	mat left_theta_a, left_theta_b, right_theta_a, right_theta_b, head_theta_a, head_theta_b;
+//void execute_path(int d[12], int path_type, int model_type, PCA9685 *a)
+//{
+	//// computing theta_a and theta_b
+	//// The angles have to be inversed mapped to kinematic angles
+	//mat left_theta_a, left_theta_b, right_theta_a, right_theta_b, head_theta_a, head_theta_b;
 
-	right_theta_b << d[0] << d[1] << d[2] << d[3] << d[4]; // right hand angles (configuration)
-	left_theta_b << inv_kin_map_left(1, d[5]) << inv_kin_map_left(2, d[6]) << inv_kin_map_left(3, d[7]) << inv_kin_map_left(4, d[8]) << inv_kin_map_left(5, d[9]); // left hand angles (configuration)
-	head_theta_b << d[10] << d[11];
+	//right_theta_b << d[0] << d[1] << d[2] << d[3] << d[4]; // right hand angles (configuration)
+	//left_theta_b << inv_kin_map_left(1, d[5]) << inv_kin_map_left(2, d[6]) << inv_kin_map_left(3, d[7]) << inv_kin_map_left(4, d[8]) << inv_kin_map_left(5, d[9]); // left hand angles (configuration)
+	//head_theta_b << d[10] << d[11];
 
-	// Reading theta_a
-	double temp_d[12];
+	//// Reading theta_a
+	//double temp_d[12];
 
-	for(int i=0;i<12;i++)
-	{
-		temp_d[i]=round(regread(i,a));
-	}
+	//for(int i=0;i<12;i++)
+	//{
+		//temp_d[i]=round(regread(i,a));
+	//}
 
-	right_theta_a << temp_d[0] << temp_d[1] << temp_d[2] << temp_d[3] << temp_d[4];
-	left_theta_a << inv_kin_map_left(1, temp_d[5]) << inv_kin_map_left(2, temp_d[6]) << inv_kin_map_left(3, temp_d[7]) << inv_kin_map_left(4, temp_d[8]) << inv_kin_map_left(5, temp_d[9]);
-	head_theta_a << temp_d[10] << temp_d[11];
-
-
+	//right_theta_a << temp_d[0] << temp_d[1] << temp_d[2] << temp_d[3] << temp_d[4];
+	//left_theta_a << inv_kin_map_left(1, temp_d[5]) << inv_kin_map_left(2, temp_d[6]) << inv_kin_map_left(3, temp_d[7]) << inv_kin_map_left(4, temp_d[8]) << inv_kin_map_left(5, temp_d[9]);
+	//head_theta_a << temp_d[10] << temp_d[11];
 
 
 
-	if(path_type == 0)
-	{
-		// Joint path
-		if(model_type == 0)
-		{
-			// Linear
-			mat configuration_history;
 
-			int n0 = 0;
-			int nf = 1000;
 
-			// The angles are converted to radians
+	//if(path_type == 0)
+	//{
+		//// Joint path
+		//if(model_type == 0)
+		//{
+			//// Linear
+			//mat configuration_history;
 
-			left_theta_a = deg2rad(left_theta_a);
-			left_theta_b = deg2rad(left_theta_b);
+			//int n0 = 0;
+			//int nf = 1000;
 
-			configuration_history = joint_path_linear(left_theta_a, left_theta_b, n0, nf);
+			//// The angles are converted to radians
 
-			// The angles must now be converted to degrees and mapped to pca angles before it is run
-		}
+			//left_theta_a = deg2rad(left_theta_a);
+			//left_theta_b = deg2rad(left_theta_b);
 
-		else if(model_type == 1)
-		{
-			// Cubic
-			mat configuration_history;
+			//configuration_history = joint_path_linear(left_theta_a, left_theta_b, n0, nf);
 
-			int n0 = 0;
-			int nf = 1000;
-			// Initial and final velocities
-			double dq0 = 0.0;
-			double dqf = 0.0;
+			//// The angles must now be converted to degrees and mapped to pca angles before it is run
+		//}
 
-			configuration_history = joint_path_cubic(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
-		}
+		//else if(model_type == 1)
+		//{
+			//// Cubic
+			//mat configuration_history;
 
-		else if(model_type == 2)
-		{
-			// Piecewise
-			mat configuration_history;
+			//int n0 = 0;
+			//int nf = 1000;
+			//// Initial and final velocities
+			//double dq0 = 0.0;
+			//double dqf = 0.0;
 
-			int n0 = 0;
-			int n1 = 50;
-			int n2 = 950;
-			int nf = 1000;
+			//configuration_history = joint_path_cubic(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
+		//}
 
-			configuration_history = joint_path_piecewise(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
-		}
+		//else if(model_type == 2)
+		//{
+			//// Piecewise
+			//mat configuration_history;
 
-	}
-}
+			//int n0 = 0;
+			//int n1 = 50;
+			//int n2 = 950;
+			//int nf = 1000;
+
+			//configuration_history = joint_path_piecewise(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
+		//}
+
+	//}
+//}
 
 
 

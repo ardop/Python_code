@@ -1,5 +1,4 @@
 #include "motor_control.h"
-#include "kinematics.h"
 #include <sstream>
 
 using namespace std;
@@ -14,7 +13,7 @@ int str2num(string s)
 
 int main()
 {
-	int val[12];
+	int val[14];
 	PCA9685 *pca1 = new PCA9685(0x40);
     int err1 = pca1->openPCA9685();
     if (err1 < 0){
@@ -56,7 +55,7 @@ int main()
 				t_angle = str2num(line);
 				val[count]=t_angle;
 				count++;
-				if(count==12)
+				if(count==14)
 					break;
 			}	
 		file.close();

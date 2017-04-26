@@ -100,6 +100,8 @@ def ui_code():
 	motor = Motor_Interface()
 	motor.show()
 	app.exec_()
+	# Code to run right before closing
+	sys.exit()
 	
 	       
 try:

@@ -1,5 +1,4 @@
 #include "motor_control.h"
-#include "kinematics.h"
 #include <sstream>
 
 
@@ -15,7 +14,7 @@ double str2double(string s)
 
 int main()
 {
-	int val[12];
+	int val[14];
 	PCA9685 *pca1 = new PCA9685(0x40);
     int err1 = pca1->openPCA9685();
     if (err1 < 0){
@@ -50,7 +49,7 @@ int main()
 		mat previous_target;
 		previous_target << 0 << 0 << 0;
 
-		while((pca1->error >= 0 || pca1->error >= 0)  && getkey() != 27)
+		while(pca1->error >= 0  && getkey() != 27)
 		{
 			ifstream file("../code/ik_angles.txt");
 			string line;
@@ -126,15 +125,18 @@ int main()
 					val[2] = 105;
 					val[3] = 0;
 					val[4] = 90;
-					val[5] = kin_map_left(1, theta(0));
-					val[6] = kin_map_left(2, theta(1));
-					val[7] = kin_map_left(3, theta(2));
-					val[8] = kin_map_left(4, theta(3));
-					val[9] = 90;
+					val[5] = 90;
+					val[6] = kin_map_left(1, theta(0));
+					val[7] = kin_map_left(2, theta(1));
+					val[8] = kin_map_left(3, theta(2));
+					val[9] = kin_map_left(4, theta(3));
 					val[10] = 90;
 					val[11] = 90;
+					val[12] = 90;
+					val[13] = 90;
 					
-					cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
+					
+					//cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
 
 					//target.print();
 					//target.reset();
