@@ -144,30 +144,29 @@ void rotate(int d[14],PCA9685 *a)
 	}
 }
 
-//void execute_path(int d[12], int path_type, int model_type, PCA9685 *a)
+//void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 //{
 	//// computing theta_a and theta_b
 	//// The angles have to be inversed mapped to kinematic angles
 	//mat left_theta_a, left_theta_b, right_theta_a, right_theta_b, head_theta_a, head_theta_b;
 
 	//right_theta_b << d[0] << d[1] << d[2] << d[3] << d[4]; // right hand angles (configuration)
-	//left_theta_b << inv_kin_map_left(1, d[5]) << inv_kin_map_left(2, d[6]) << inv_kin_map_left(3, d[7]) << inv_kin_map_left(4, d[8]) << inv_kin_map_left(5, d[9]); // left hand angles (configuration)
-	//head_theta_b << d[10] << d[11];
+	//left_theta_b << inv_kin_map_left(1, deg2rad(d[6])) << inv_kin_map_left(2, deg2rad(d[7])) << inv_kin_map_left(3, deg2rad(d[8])) << inv_kin_map_left(4, deg2rad(d[9])) << inv_kin_map_left(5, deg2rad(d[10])); // left hand angles (configuration)
+	//head_theta_b << d[12] << d[13];
 
 	//// Reading theta_a
-	//double temp_d[12];
+	//double temp_d[14];
 
-	//for(int i=0;i<12;i++)
+	//for(int i=0;i<14;i++)
 	//{
 		//temp_d[i]=round(regread(i,a));
 	//}
 
 	//right_theta_a << temp_d[0] << temp_d[1] << temp_d[2] << temp_d[3] << temp_d[4];
-	//left_theta_a << inv_kin_map_left(1, temp_d[5]) << inv_kin_map_left(2, temp_d[6]) << inv_kin_map_left(3, temp_d[7]) << inv_kin_map_left(4, temp_d[8]) << inv_kin_map_left(5, temp_d[9]);
-	//head_theta_a << temp_d[10] << temp_d[11];
-
-
-
+	//left_theta_a << inv_kin_map_left(1, deg2rad(temp_d[6])) << inv_kin_map_left(2, deg2rad(temp_d[7])) << inv_kin_map_left(3, deg2rad(temp_d[8])) << inv_kin_map_left(4, deg2rad(temp_d[9])) << inv_kin_map_left(5, deg2rad(temp_d[10]));
+	//head_theta_a << temp_d[12] << temp_d[13];
+	
+	////left_theta_a.print();
 
 
 	//if(path_type == 0)
@@ -185,10 +184,20 @@ void rotate(int d[14],PCA9685 *a)
 
 			//left_theta_a = deg2rad(left_theta_a);
 			//left_theta_b = deg2rad(left_theta_b);
+			
+			//left_theta_a.print();
 
 			//configuration_history = joint_path_linear(left_theta_a, left_theta_b, n0, nf);
+			
+			////configuration_history.print();
 
 			//// The angles must now be converted to degrees and mapped to pca angles before it is run
+			//for(int i=0;i<configuration_history.n_rows;i++)
+			//{
+				//mat tmp;
+				//tmp = rad2deg(configuration_history.row(i));
+				////tmp.print();
+			//}
 		//}
 
 		//else if(model_type == 1)
@@ -205,18 +214,18 @@ void rotate(int d[14],PCA9685 *a)
 			//configuration_history = joint_path_cubic(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
 		//}
 
-		//else if(model_type == 2)
-		//{
-			//// Piecewise
-			//mat configuration_history;
+		////else if(model_type == 2)
+		////{
+			////// Piecewise
+			////mat configuration_history;
 
-			//int n0 = 0;
-			//int n1 = 50;
-			//int n2 = 950;
-			//int nf = 1000;
+			////int n0 = 0;
+			////int n1 = 50;
+			////int n2 = 950;
+			////int nf = 1000;
 
-			//configuration_history = joint_path_piecewise(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
-		//}
+			////configuration_history = joint_path_piecewise(left_theta_a, left_theta_b, n0, nf);
+		////}
 
 	//}
 //}

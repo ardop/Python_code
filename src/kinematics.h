@@ -101,33 +101,33 @@ double rad2deg(double rad)
 	return deg;
 }
 
-//mat deg2rad(const mat& deg)
-//{
-	//mat temp_ret;
+mat deg2rad(const mat& deg)
+{
+	mat temp_ret;
 
-	//// Assuming deg is a row vector
+	// Assuming deg is a row vector
 
-	//for(int i=0;i<deg.n_cols;i++)
-	//{
-		//temp_ret << deg2rad(deg(i));
-	//}
+	for(int i=0;i<deg.n_cols;i++)
+	{
+		temp_ret << deg2rad(deg(i));
+	}
 
-	//return temp_ret;
-//}
+	return temp_ret;
+}
 
-//mat rad2deg(const mat& rad)
-//{
-	//mat temp_ret;
+mat rad2deg(const mat& rad)
+{
+	mat temp_ret;
 
-	//// Assuming deg is a row vector
+	// Assuming deg is a row vector
 
-	//for(int i=0;i<deg.n_cols;i++)
-	//{
-		//temp_ret << rad2deg(rad(i));
-	//}
+	for(int i=0;i<rad.n_cols;i++)
+	{
+		temp_ret << rad2deg(rad(i));
+	}
 
-	//return temp_ret;
-//}
+	return temp_ret;
+}
 
 
 

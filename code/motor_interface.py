@@ -8,8 +8,8 @@ import os
 import atexit
 
 #Default angles
-lDefaultAngles = [90, 0, 90, 90, 90, 40]
-rDefaultAngles = [90, 0, 90, 90, 90, 40]
+lDefaultAngles = [90, 0, 90, 90, 90, 90]
+rDefaultAngles = [90, 0, 90, 90, 90, 90]
 hDefaultAngles = [90, 90]
 
 #Angles to be written into the file
