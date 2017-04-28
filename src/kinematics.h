@@ -101,31 +101,37 @@ double rad2deg(double rad)
 	return deg;
 }
 
-mat deg2rad(const mat& deg)
+mat deg2rad_mat(const mat& deg)
 {
 	mat temp_ret;
 
 	// Assuming deg is a row vector
 
-	for(int i=0;i<deg.n_cols;i++)
-	{
-		temp_ret << deg2rad(deg(i));
-	}
+	//for(int i=0;i<deg.n_cols;i++)
+	//{
+		//mat tmp;
+		//tmp << deg2rad(deg(i));
+		
+		//join_horiz(temp_ret, tmp);
+	//}
+	
+	temp_ret << deg2rad(deg(0)) << deg2rad(deg(1)) << deg2rad(deg(2)) << deg2rad(deg(3));
 
 	return temp_ret;
 }
 
-mat rad2deg(const mat& rad)
+mat rad2deg_mat(const mat& rad)
 {
 	mat temp_ret;
 
 	// Assuming deg is a row vector
 
-	for(int i=0;i<rad.n_cols;i++)
-	{
-		temp_ret << rad2deg(rad(i));
-	}
-
+	//for(int i=0;i<rad.n_cols;i++)
+	//{
+		//temp_ret << rad2deg(rad(i));
+	//}
+	temp_ret << rad2deg(rad(0)) << rad2deg(rad(1)) << rad2deg(rad(2)) << rad2deg(rad(3));
+	
 	return temp_ret;
 }
 
@@ -247,6 +253,44 @@ double kin_map_right(int c,double angle)
 		case 4:
 			return angle*180/(PI)+90;
 			break;
+	}
+}
+
+float calculate_pose_angle(const mat& theta)
+{
+	// Calculating the pose motor angle to make the grippers parallel to the horizontal plane
+	
+	float theta1, theta2, theta3, theta4;
+	
+	theta1 = theta(0);
+	theta2 = theta(1);
+	theta3 = theta(3);
+	theta4 = theta(4);
+	
+	float C1 = cos(theta1)*cos(theta2)*cos(theta3)*cos(theta4);
+	float C2 = cos(theta1)*cos(theta2)*sin(theta3);
+	float C3 = cos(theta1)*sin(theta2)*sin(theta4);
+	float C4 = sin(theta1)*sin(theta3)*cos(theta4);
+	float C5 = sin(theta1)*cos(theta3);
+	
+	float A = C1 + C3 + C4;
+	float B = -C2 + C5;
+	
+	float theta5 = PI + atan2(A, B);
+	
+	if(theta5<=t5bl && theta5>=t5al)
+	{
+		return theta5;
+	}
+	if(theta5>t5bl)
+	{
+		return -(PI - theta5);
+		//return t5bl;
+	}
+	if(theta5<t5al)
+	{
+		return PI + theta5;
+		//return t5al;
 	}
 }
 		

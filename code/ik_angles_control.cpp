@@ -119,7 +119,24 @@ int main()
 				}
 				else
 				{
-
+					//val[0] = 53;
+					//val[1] = 150;
+					//val[2] = 105;
+					//val[3] = 0;
+					//val[4] = 90;
+					//val[5] = 90;
+					//val[6] = 160;
+					//val[7] = 0;
+					//val[8] = 0;
+					//val[9] = 0;
+					//val[10] = 90;
+					//val[11] = 90;
+					//val[12] = 90;
+					//val[13] = 90;
+					
+					//rotate(val,pca1);
+					//sleep(5);
+					
 					val[0] = 53;
 					val[1] = 150;
 					val[2] = 105;
@@ -130,12 +147,16 @@ int main()
 					val[7] = kin_map_left(2, theta(1));
 					val[8] = kin_map_left(3, theta(2));
 					val[9] = kin_map_left(4, theta(3));
-					val[10] = 90;
+					val[10] = kin_map_left(5, calculate_pose_angle(theta));
 					val[11] = 90;
 					val[12] = 90;
 					val[13] = 90;
 					
-					
+					float theta5 = calculate_pose_angle(theta);
+					cout << theta5 << " " << kin_map_left(5, theta5) << endl;
+					//sleep(2);
+					//val[11] = 70;
+					//rotate(val,pca1);
 					//cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
 
 					//target.print();

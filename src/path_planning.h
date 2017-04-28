@@ -78,9 +78,10 @@ mat joint_path_linear(const mat& theta_a, const mat& theta_b, int n0, int nf)
 		theta_c = a*x;
 		
 		// Appending to the matrix being returned
-		configuration_history = join_vert(configuration_history, trans(theta_c));
-	}
+		configuration_history = join_vert(configuration_history, theta_c);
 		
+
+	}
 	
 	return configuration_history;
 	

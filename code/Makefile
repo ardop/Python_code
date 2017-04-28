@@ -1,5 +1,5 @@
 all:	
-	#g++ test.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/test -O2 -larmadillo
+	##g++ test.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/test -O2 -larmadillo
 	#g++ ik_angles_control.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/ik_interface -O2 -larmadillo
 	#g++ cali_test.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/cali 
 	# g++ limited_inverse.cpp -o lim -O2 -larmadillo 
