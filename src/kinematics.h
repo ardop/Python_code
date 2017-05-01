@@ -264,8 +264,11 @@ float calculate_pose_angle(const mat& theta)
 	
 	theta1 = theta(0);
 	theta2 = theta(1);
-	theta3 = theta(3);
-	theta4 = theta(4);
+	theta3 = theta(2);
+	theta4 = theta(3);
+	//cout << theta1 << endl << theta2 << endl << theta3 << endl << theta4 << endl;
+	
+	
 	
 	float C1 = cos(theta1)*cos(theta2)*cos(theta3)*cos(theta4);
 	float C2 = cos(theta1)*cos(theta2)*sin(theta3);
@@ -276,22 +279,56 @@ float calculate_pose_angle(const mat& theta)
 	float A = C1 + C3 + C4;
 	float B = -C2 + C5;
 	
-	float theta5 = PI + atan2(A, B);
 	
-	if(theta5<=t5bl && theta5>=t5al)
+	float theta5 = PI - atan2(B, A); //Zero condition
+	
+	cout << "Calculated angle:" << endl;
+	cout << theta5 << endl;
+	cout << "------------------------------------" << endl;
+	
+	float a13 = A*sin(theta5) + B*cos(theta5);
+	
+	cout << "a13 with new angle:" << endl;
+	cout << a13 << endl;
+	cout << "------------------------------------" << endl;
+	
+	// Modifying to keep angles within limits
+	
+	if(theta5>=(1.5*PI))
 	{
-		return theta5;
+		theta5 = -(2*PI - theta5);
 	}
-	if(theta5>t5bl)
+	else if(theta5<=-(1.5*PI))
 	{
-		return -(PI - theta5);
-		//return t5bl;
+		theta5 = 2*PI + theta5;
 	}
-	if(theta5<t5al)
-	{
-		return PI + theta5;
-		//return t5al;
-	}
+	
+	//else if(theta5>(PI/2))
+	//{
+		//theta5 = theta5 - PI;
+	//}
+	//else if(theta5<(PI/2))
+	//{
+		//theta5 = theta5 + PI;
+	//}
+	
+	
+	cout << "Calculated angle after modification:" << endl;
+	cout << theta5 << endl;
+	cout << "------------------------------------" << endl;
+	
+	a13 = A*sin(theta5) + B*cos(theta5);
+	
+	cout << "a13 with new angle after modification:" << endl;
+	cout << a13 << endl;
+	cout << "------------------------------------" << endl;
+	
+	
+	return theta5;
+	
+	
+	
+
 }
 		
 

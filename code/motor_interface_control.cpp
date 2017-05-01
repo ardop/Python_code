@@ -64,8 +64,9 @@ int main()
 		{
 			cout << "Could not open file" << endl;
 		}
-		//rotate(val,pca1);
-		execute_path(val, 0, 0, pca1);
+		
+		rotate(val,pca1);
+		//execute_path(val, 0, 0, pca1);
 	}
 	pca1->closePCA9685();
 }
