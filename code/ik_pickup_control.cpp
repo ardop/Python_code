@@ -51,15 +51,21 @@ int main()
 
 		while(pca1->error >= 0  && getkey() != 27)
 		{
-			ifstream file("../code/ik_angles.txt");
+			char g;
+			cout<<"Pick? y/n ";
+			cin>>g;
+			if(g == 'y')
+			{			
+			ifstream file("/home/ubuntu/ardop/stereo_app/ik_file.txt");
 			string line;
 			double t_angle;
 			mat target;
 			target.reset();
-			int count = 0;
 			//cout << "starting" << endl;
+			int count = 0;
 			if(file.is_open())
 			{
+
 				while(getline(file, line))
 				{
 					t_angle = str2double(line);
@@ -70,126 +76,121 @@ int main()
 					if(count==3)
 						break;
 
-				}	
-
-					
+				}
+								
 			file.close();
 			}
 			else
 			{
 				cout << "Could not open file" << endl;
 			}
-			if(iter == 0)
-			{
-				// First iteration must store the target in stored_target
-				previous_target(0) = target(0);
-				previous_target(1) = target(1);
-				previous_target(2) = target(2);
-				change = true;
-			}
-			else
-			{
-				if(target(0)==previous_target(0) && target(1)==previous_target(1) && target(2)==previous_target(2))
-				{
-					// Both the angles are same. Dont move
-					change = false;
-				}
-				else
-				{
-					change = true;
-				}
-				previous_target(0) = target(0);
-				previous_target(1) = target(1);
-				previous_target(2) = target(2);
-			}
-			
-			if(change)
+			mat theta;
+			try
 			{
 			
-				mat theta;
+
 				mat zero;
 				zero << 0;
 				theta = calculate_ik_jacobian(target, false, zero);
-				
-				if(theta.n_rows == 1)
-				{
-					// If -1 is returned, then ignore as no solution is possible
-					cout << "Ignore. No Solution" << endl;
-				}
-				else
-				{
-					val[0] = 53;
-					val[1] = 150;
-					val[2] = 105;
-					val[3] = 0;
-					val[4] = 90;
-					val[5] = 90;
-					val[6] = 160;
-					val[7] = 0;
-					val[8] = 0;
-					val[9] = 0;
-					val[10] = 90;
-					val[11] = 90;
-					val[12] = 160;
-					val[13] = 110;
-					rotate(val,pca1);
-					sleep(3);
-					
-					val[0] = 53;
-					val[1] = 150;
-					val[2] = 105;
-					val[3] = 0;
-					val[4] = 90;
-					val[5] = 90;
-					val[6] = kin_map_left(1, theta(0));
-					val[7] = kin_map_left(2, theta(1));
-					val[8] = kin_map_left(3, theta(2));
-					val[9] = kin_map_left(4, theta(3));
-					val[10] = kin_map_left(5, calculate_pose_angle(theta));
-					val[11] = 0;
-					val[12] = 160;
-					val[13] = 110;
-					rotate(val,pca1);
-					sleep(3);
-					
-					val[11] = 65;
-					rotate(val,pca1);
-					sleep(2);
-					//cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
-					
-					val[8] = 0;
-					val[9] = 0;
-					
-					rotate(val,pca1);
-					sleep(2);
-					
-					val[0] = 53;
-					val[1] = 150;
-					val[2] = 105;
-					val[3] = 0;
-					val[4] = 90;
-					val[5] = 90;
-					val[6] = 160;
-					val[7] = 0;
-					val[8] = 0;
-					val[9] = 0;
-					val[10] = 90;
-					val[11] = 65;
-					val[12] = 160;
-					val[13] = 110;					
-					rotate(val,pca1);
-					sleep(5);
-
-					//target.print();
-					//target.reset();
-					cout << endl << endl;
-					
-
-					
-					rotate(val,pca1);
-				}
 			}
-			iter++;
+			catch(...)
+			{
+				continue;
+			}
+			
+			if(theta.n_rows == 1)
+			{
+				// If -1 is returned, then ignore as no solution is possible
+				cout << "Ignore. No Solution" << endl;
+			}
+			else
+			{
+
+				val[0] = 53;
+				val[1] = 150;
+				val[2] = 105;
+				val[3] = 0;
+				val[4] = 90;
+				val[5] = 90;
+				val[6] = 150;
+				val[7] = 20;
+				val[8] = 0;
+				val[9] = 0;
+				val[10] = 90;
+				val[11] = 90;
+				val[12] = 160;
+				val[13] = 90;
+				
+				rotate(val,pca1);
+				//execute_path(val, 0, 1, pca1);
+				
+				val[6] = 50;
+				val[7] = 20;
+				val[8] = 45;
+				val[9] = 0;
+				val[10] = 90;
+				val[11] = 0;
+				rotate(val,pca1);
+				//execute_path(val, 0, 1, pca1);
+				sleep(2);
+				
+				val[0] = 53;
+				val[1] = 150;
+				val[2] = 105;
+				val[3] = 0;
+				val[4] = 90;
+				val[5] = 90;
+				val[6] = kin_map_left(1, theta(0));
+				val[7] = kin_map_left(2, theta(1));
+				val[8] = kin_map_left(3, theta(2));
+				val[9] = kin_map_left(4, theta(3));
+				val[10] = kin_map_left(5, calculate_pose_angle(theta));
+				val[11] = 0;
+				val[12] = 160;
+				val[13] = 90;
+				rotate(val,pca1);
+				//execute_path(val, 0, 1, pca1);
+				sleep(2);
+				
+				val[11] = 65;
+				rotate(val,pca1);
+				//execute_path(val, 0, 1, pca1);
+				sleep(2);
+				//cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
+				
+				val[6] = 60;
+				val[7] = 10;
+				val[8] = 90;
+				val[9] = 0;
+				val[10] = 90;
+				val[12] = 90;
+				rotate(val,pca1);
+				//execute_path(val, 0, 1, pca1);
+				sleep(2);
+				
+				val[11] = 0;
+				rotate(val,pca1);
+				sleep(1);
+				
+				val[6] = 150;
+				val[7] = 20;
+				val[8] = 0;
+				val[9] = 0;
+				val[10] = 90;
+				val[11] = 90;
+				val[12] = 160;
+				rotate(val,pca1);
+				sleep(1);
+
+				//target.print();
+				//target.reset();
+				cout << endl << endl;
+			}
+		}
+		else
+			continue;
+		
+
 		}
 		pca1->closePCA9685();
 	}

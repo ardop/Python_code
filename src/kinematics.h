@@ -101,38 +101,41 @@ double rad2deg(double rad)
 	return deg;
 }
 
-mat deg2rad_mat(const mat& deg)
+mat deg2rad(const mat& deg)
 {
-	mat temp_ret;
+	mat tmp_ret;
+	
 
 	// Assuming deg is a row vector
 
-	//for(int i=0;i<deg.n_cols;i++)
-	//{
-		//mat tmp;
-		//tmp << deg2rad(deg(i));
+	for(int i=0;i<deg.n_cols;i++)
+	{
+		mat tmp;
+		tmp << deg2rad(deg(i));
 		
-		//join_horiz(temp_ret, tmp);
-	//}
+		tmp_ret = join_horiz(tmp_ret, tmp);
+	}
 	
-	temp_ret << deg2rad(deg(0)) << deg2rad(deg(1)) << deg2rad(deg(2)) << deg2rad(deg(3));
 
-	return temp_ret;
+	return tmp_ret;
 }
 
-mat rad2deg_mat(const mat& rad)
+mat rad2deg(const mat& rad)
 {
-	mat temp_ret;
+	mat tmp_ret;
 
 	// Assuming deg is a row vector
 
-	//for(int i=0;i<rad.n_cols;i++)
-	//{
-		//temp_ret << rad2deg(rad(i));
-	//}
-	temp_ret << rad2deg(rad(0)) << rad2deg(rad(1)) << rad2deg(rad(2)) << rad2deg(rad(3));
+	for(int i=0;i<rad.n_cols;i++)
+	{
+		mat tmp;
+		tmp << rad2deg(rad(i));
+
+		tmp_ret = join_horiz(tmp_ret, tmp);
+	}
 	
-	return temp_ret;
+	
+	return tmp_ret;
 }
 
 
@@ -211,6 +214,15 @@ double kin_map_left(int c, double angle)
 	}
 }
 
+mat kin_map_left(const mat& theta)
+{
+	mat tmp;
+	
+	tmp << kin_map_left(1, theta(0)) << kin_map_left(2, theta(1)) << kin_map_left(3, theta(2)) << kin_map_left(4, theta(3)) << kin_map_left(5, theta(4));
+	
+	return tmp;
+}
+
 // Convert from pca motor angles to kinematic angles
 double inv_kin_map_left(int c, double angle)
 {
@@ -232,6 +244,15 @@ double inv_kin_map_left(int c, double angle)
 			return angle*180/(PI) - 90;
 			break;
 	}
+}
+
+mat inv_kin_map_left(const mat& theta)
+{
+	mat tmp;
+	
+	tmp << inv_kin_map_left(1, theta(0)) << inv_kin_map_left(2, theta(1)) << inv_kin_map_left(3, theta(2)) << inv_kin_map_left(4, theta(3)) << inv_kin_map_left(5, theta(4));
+	
+	return tmp;
 }
 
 double kin_map_right(int c,double angle)

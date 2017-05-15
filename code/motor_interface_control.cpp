@@ -65,8 +65,24 @@ int main()
 			cout << "Could not open file" << endl;
 		}
 		
+		//// Checking kin_map_left and inv_kin_map_left
+		
+		//mat tmp;
+		//tmp << val[6] << val[7] << val[8] << val[9] << val[10] << val[11];
+		//tmp.print();
+		
+		//tmp = deg2rad(tmp);
+		//tmp = inv_kin_map_left(tmp);
+		//tmp.print();
+		
+		//tmp = deg2rad(tmp);
+		//tmp = kin_map_left(tmp);
+		//tmp.print();
+		
+
+		
 		rotate(val,pca1);
-		//execute_path(val, 0, 0, pca1);
+		//execute_path(val, 0, 1, pca1);
 	}
 	pca1->closePCA9685();
 }

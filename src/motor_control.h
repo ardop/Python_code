@@ -167,6 +167,18 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 	head_theta_a << temp_d[12] << temp_d[13];
 	
 	//left_theta_a.print();
+	//left_theta_b.print();
+	
+	//cout << "----------------------------" << endl;
+	
+	//left_theta_a = kin_map_left(deg2rad(left_theta_a));
+	//left_theta_b = kin_map_left(deg2rad(left_theta_b));
+	
+	//left_theta_a.print();
+	//left_theta_b.print();
+	
+	//cout << "----------------------------" << endl;
+	
 
 
 	if(path_type == 0)
@@ -178,13 +190,13 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 			mat configuration_history;
 
 			int n0 = 0;
-			int nf = 10;
+			int nf = 500;
 
 			// The angles are converted to radians
 			
 
-			left_theta_a = deg2rad_mat(left_theta_a);
-			left_theta_b = deg2rad_mat(left_theta_b);
+			left_theta_a = deg2rad(left_theta_a);
+			left_theta_b = deg2rad(left_theta_b);
 			
 			//left_theta_a.print();
 
@@ -196,8 +208,28 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 			for(int i=0;i<configuration_history.n_rows;i++)
 			{
 				mat tmp;
-				tmp = rad2deg_mat(configuration_history.row(i));
-				tmp.print();
+				tmp = kin_map_left(configuration_history.row(i));
+				
+				// Rounding off tmp
+				tmp = round(tmp);
+				
+				// Move all the angles of the left arm to the specific angle value in this iteration
+				for(int j=0;j<tmp.n_cols;j++)
+				{
+					a->setPWM(j+6, 0, map(tmp(j), 0, max_angle[j], servoMin[j], servoMax[j]));
+				}
+				
+				// displaying movement
+				for(int j=0;j<tmp.n_cols;j++)
+				{
+					cout << tmp(j) << "->" << d[j+6] << "..";
+				}
+				
+				cout << endl;
+				
+				//pause
+				usleep(5000);
+
 			}
 		}
 
@@ -207,12 +239,42 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 			mat configuration_history;
 
 			int n0 = 0;
-			int nf = 1000;
+			int nf = 100;
 			// Initial and final velocities
 			double dq0 = 0.0;
 			double dqf = 0.0;
+			
+			left_theta_a = deg2rad(left_theta_a);
+			left_theta_b = deg2rad(left_theta_b);
 
 			configuration_history = joint_path_cubic(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
+			
+			for(int i=0;i<configuration_history.n_rows;i++)
+			{
+				mat tmp;
+				tmp = kin_map_left(configuration_history.row(i));
+				
+				// Rounding off tmp
+				tmp = round(tmp);
+				
+				// Move all the angles of the left arm to the specific angle value in this iteration
+				for(int j=0;j<tmp.n_cols;j++)
+				{
+					a->setPWM(j+6, 0, map(tmp(j), 0, max_angle[j], servoMin[j], servoMax[j]));
+				}
+				
+				// displaying movement
+				for(int j=0;j<tmp.n_cols;j++)
+				{
+					cout << tmp(j) << "->" << d[j+6] << "..";
+				}
+				
+				cout << endl;
+				
+				//pause
+				usleep(5000);
+				
+			}
 		}
 
 		//else if(model_type == 2)

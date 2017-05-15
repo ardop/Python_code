@@ -1,2 +1,2 @@
-make
-cd ../build && sudo ./ik_interface && cd ../code
+make cali
+cd ../build && sudo ./cali && cd ../code

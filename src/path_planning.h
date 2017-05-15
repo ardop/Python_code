@@ -113,7 +113,7 @@ mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, dou
 
 	x = solve(A, B);
 
-	print_check_matrix(A, B);
+	//print_check_matrix(A, B);
 
 	for(int i=n0;i<=nf;i++)
 	{

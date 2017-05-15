@@ -13,7 +13,7 @@ int str2num(string s)
 
 int main()
 {
-	int val[12];
+	int val[14];
 	PCA9685 *pca1 = new PCA9685(0x40);
     int err1 = pca1->openPCA9685();
     if (err1 < 0){
@@ -24,6 +24,7 @@ int main()
         pca1->reset() ;
         pca1->setPWMFrequency(60) ;
         // 27 is the ESC keyOC
+		
         printf("Hit ESC key to exit\n");
        
 	pca1->closePCA9685();
