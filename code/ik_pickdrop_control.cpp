@@ -11,6 +11,7 @@ double str2double(string s)
     is >> n;
 	return n;
 }
+
 unsigned int split(const std::string &txt, std::vector<std::string> &strs, char ch)
 {
     unsigned int pos = txt.find( ch );
@@ -75,11 +76,12 @@ int main()
 			cin>>g;
 			if(g == 'y')
 			{			
-			ifstream file("/home/ubuntu/ardop/stereo_app/ik_file.txt");
+			ifstream file("/home/ubuntu/ardop/stereo_app/ik_pickdrop.txt");
 			string line;
 			double t_angle;
-			mat target;
-			target.reset();
+			mat target_ball,target_glass,target_temp;
+			target_ball.reset();
+			target_glass.reset();
 			//cout << "starting" << endl;
 			int count = 0;
 			if(file.is_open())
@@ -89,37 +91,69 @@ int main()
 				{
 					vector<string> v;
 					split(line, v, ' ');
+					if(str2double(v[0])==0)
+					{
 						for(int i=1;i<v.size();i++)
 						{
 							t_angle = str2double(v[i]);
 							mat t_angle_mat;
 							t_angle_mat << t_angle;
-							target = join_horiz(target, t_angle_mat);
+							target_ball = join_horiz(target_ball, t_angle_mat);
 							count++;
-						}				
-				}
-			target.print("target");					
+						}
+					}
+					else if(str2double(v[0])==1)
+					{
+						for(int i=1;i<v.size();i++)
+						{
+							t_angle = str2double(v[i]);
+							mat t_angle_mat;
+							t_angle_mat << t_angle;
+							target_glass = join_horiz(target_glass, t_angle_mat);
+							count++;
+						}
+					}
+			}			
 			file.close();
 			}
 			else
 			{
 				cout << "Could not open file" << endl;
 			}
-			mat theta;
+			mat theta_ball,theta_glass,theta_temp;
+			mat zero;
+			zero << 0;
 			try
 			{
 			
 
-				mat zero;
-				zero << 0;
-				theta = calculate_ik_jacobian(target, false, zero);
+
+				theta_ball = calculate_ik_jacobian(target_ball, false, zero);
+				if(theta_ball.n_rows == 1)
+				{
+					cout << "No solution for ball" << endl;
+				}
+				target_temp = target_ball;
+				target_temp(0) = target_temp(0)+15;
+				target_temp(1) = target_temp(1)+6;
+				target_temp.print("TEMP");
+				theta_temp = calculate_ik_jacobian(target_temp, false, zero);
+				if(theta_temp.n_rows == 1)
+				{
+					cout << "No solution for temp" << endl;
+				}
+				theta_glass = calculate_ik_jacobian(target_glass, false, zero);
+				if(theta_glass.n_rows == 1)
+				{
+					cout << "No solution for glass" << endl;
+				}
 			}
 			catch(...)
 			{
 				continue;
 			}
-			
-			if(theta.n_rows == 1)
+
+			if(theta_ball.n_rows == 1 || theta_glass.n_rows == 1 || theta_temp.n_rows == 1)
 			{
 				// If -1 is returned, then ignore as no solution is possible
 				cout << "Ignore. No Solution" << endl;
@@ -127,6 +161,7 @@ int main()
 			else
 			{
 
+				//initial position
 				val[0] = 53;
 				val[1] = 150;
 				val[2] = 105;
@@ -142,9 +177,10 @@ int main()
 				val[12] = 160;
 				val[13] = 90;
 				
-				rotate(val,pca1);
-				//execute_path(val, 0, 1, pca1);
+				//rotate(val,pca1);
+				execute_path(val,zero, 0, 1, pca1);
 				
+				//intermediate position
 				val[6] = 50;
 				val[7] = 20;
 				val[8] = 45;
@@ -153,55 +189,84 @@ int main()
 				val[11] = 0;
 				rotate(val,pca1);
 				//execute_path(val, 0, 1, pca1);
-				sleep(2);
+
 				
+				//ball position
 				val[0] = 53;
 				val[1] = 150;
 				val[2] = 105;
 				val[3] = 0;
 				val[4] = 90;
 				val[5] = 90;
-				val[6] = kin_map_left(1, theta(0));
-				val[7] = kin_map_left(2, theta(1));
-				val[8] = kin_map_left(3, theta(2));
-				val[9] = kin_map_left(4, theta(3));
-				val[10] = kin_map_left(5, calculate_pose_angle(theta));
+				val[6] = kin_map_left(1, theta_ball(0));
+				val[7] = kin_map_left(2, theta_ball(1));
+				val[8] = kin_map_left(3, theta_ball(2));
+				val[9] = kin_map_left(4, theta_ball(3));
+				val[10] = kin_map_left(5, calculate_pose_angle(theta_ball));
 				val[11] = 0;
 				val[12] = 160;
 				val[13] = 90;
-				rotate(val,pca1);
-				//execute_path(val, 0, 1, pca1);
-				sleep(2);
+				//rotate(val,pca1);
 				
+				//Fixing pose angle inversion
+				if(calculate_pose_angle(theta_ball)>PI/2)
+				{
+					val[10] = kin_map_left(5, -(PI - calculate_pose_angle(theta_ball)));
+					cout << "-----------------------" << endl;
+					cout << "Angle inverted" << endl;
+					cout << "-----------------------" << endl;
+				}
+				
+				execute_path(val, zero, 0, 1, pca1);
+				
+				cout << "-------------------------------" << endl;
+				cout << "pose unmapped " << calculate_pose_angle(theta_ball) << endl;
+				cout << "pose mapped " << val[10] << endl;
+				cout << "-------------------------------" << endl;
+
+				
+				//grip ball
 				val[11] = 65;
 				rotate(val,pca1);
 				//execute_path(val, 0, 1, pca1);
-				sleep(2);
+
 				//cout << val[5] << " " << val[6] << " " << val[7] << " " << val[8] << endl;
 				
-				val[6] = 60;
-				val[7] = 10;
-				val[8] = 90;
-				val[9] = 0;
-				val[10] = 90;
-				val[12] = 90;
+				//ball picked up
+				val[6] = kin_map_left(1, theta_temp(0));
+				val[7] = kin_map_left(2, theta_temp(1));
+				val[8] = kin_map_left(3, theta_temp(2));
+				val[9] = kin_map_left(4, theta_temp(3));
+				val[10] = kin_map_left(5, calculate_pose_angle(theta_temp));
+				execute_path(val, zero, 0, 1, pca1);
+
+				//glass position
+				val[6] = kin_map_left(1, theta_glass(0));
+				val[7] = kin_map_left(2, theta_glass(1));
+				val[8] = kin_map_left(3, theta_glass(2));
+				val[9] = kin_map_left(4, theta_glass(3));
+				val[10] = kin_map_left(5, calculate_pose_angle(theta_glass));
+				execute_path(val, zero, 0, 1, pca1);
+
+								
+				//ball dropped
+				val[11]=0;
 				rotate(val,pca1);
-				//execute_path(val, 0, 1, pca1);
 				sleep(2);
 				
-				val[11] = 0;
+				val[11] = 90;
 				rotate(val,pca1);
-				sleep(1);
-				
+				//initial position
 				val[6] = 150;
 				val[7] = 20;
 				val[8] = 0;
 				val[9] = 0;
 				val[10] = 90;
 				val[11] = 90;
-				val[12] = 160;
-				rotate(val,pca1);
-				sleep(1);
+
+				//rotate(val,pca1);
+				execute_path(val, zero, 0, 1, pca1);
+
 
 				//target.print();
 				//target.reset();

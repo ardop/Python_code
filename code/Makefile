@@ -1,5 +1,7 @@
 pick:	
 	g++ ik_pickup_control.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/ik_pickup -O2 -larmadillo
+drop:	
+	g++ ik_pickdrop_control.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/ik_pickdrop -O2 -larmadillo	
 mic:
 	g++ motor_interface_control.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/m_interface -O2 -larmadillo
 ik:

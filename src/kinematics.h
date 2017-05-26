@@ -68,6 +68,19 @@ mat calculate_fk_mat(const mat& theta)
 	
 	return fkmat;
 }
+
+mat calculate_target(const mat& theta)
+{
+	mat fk;
+	fk = calculate_fk_mat(theta);
+	
+	// Obtaining the target values from the forward kinematics matrix
+	
+	mat target;
+	target = fk(span(0, 2), span(3, 3));
+	
+	return target;
+}
 	
 
 mat round_mat(const mat& m, int precision )
@@ -86,7 +99,7 @@ mat round_mat(const mat& m, int precision )
     return newmat;
 }
 
-// Functions to convert between radians and degrees
+// Functions to convert between radians and degrees (Overloaded for float inputs and mats)
 double deg2rad(double deg)
 {
 	double rad;
@@ -168,16 +181,18 @@ bool validate_theta_left(const mat& angles)
 		
 }
 
-double dist(const mat &v1,const mat &v2)
+double calculate_distance(const mat &a,const mat &b)
 {
 	double d=0;
-	for(int i=0;i<v1.n_cols;i++)
+	for(int i=0;i<a.n_cols;i++)
 	{
-		d=d+pow((v1(i)-v2(i)),2);
+		d = d + pow((a(i)-b(i)),2);
 	}
 	d=sqrt(d);
 	return d;
 }
+
+
 
 double calculate_error(const mat&a, const mat &b)
 {
@@ -472,7 +487,14 @@ mat calculate_ik_jacobian(const mat& t, bool is_theta_default_fixed, const mat& 
 			
 			if(is_theta_default_fixed)
 			{
-				theta_default = theta_default_fixed; // fixed theta default
+				mat r = randn<mat>(1, 4);
+				theta_default = theta_default_fixed.cols(0, 3); // fixed theta default
+				//theta_default = theta_default + r; // Adding noise to ensure solutions
+				theta_default(0) = 0.2*r(0) + theta_default(0) - 0.1;
+				theta_default(1) = 0.2*r(1) + theta_default(1) - 0.1;
+				theta_default(2) = 0.2*r(2) + theta_default(2) - 0.1;
+				theta_default(3) = 0.2*r(3) + theta_default(3) - 0.1;
+
 			}
 			else
 			{
@@ -512,7 +534,7 @@ mat calculate_ik_jacobian(const mat& t, bool is_theta_default_fixed, const mat& 
 				//cout << "INVALID" << endl;
 				iter++;
 				
-				if(iter>=100)
+				if(iter>=200)
 				{
 					//cout << "NO SOLUTION POSSIBLE" << endl;
 					return minus_one;
@@ -527,144 +549,145 @@ mat calculate_ik_jacobian(const mat& t, bool is_theta_default_fixed, const mat& 
 	
 	
 	
-	
+
+//IK using CCD. Doesnt work for now
 	
 
-mat calculate_ccd(const mat& theta_default, const mat& t)
-{
-	mat theta;
-	theta<<theta_default(0)<<theta_default(1)<<theta_default(2)<<theta_default(3)<<0<<0<<0;
+//mat calculate_ccd(const mat& theta_default, const mat& t)
+//{
+	//mat theta;
+	//theta<<theta_default(0)<<theta_default(1)<<theta_default(2)<<theta_default(3)<<0<<0<<0;
 
-	double theta1, theta2, theta3, theta4, theta5;
-	mat fk,epos,a,b,c,d,e,jpos;
-	double err,erra,errb;
+	//double theta1, theta2, theta3, theta4, theta5;
+	//mat fk,epos,a,b,c,d,e,jpos;
+	//double err,erra,errb;
 	
-	for(int i=0;i<10;i++)
-	{
-		theta1 = theta(0);
-		theta2 = theta(1);
-		theta3 = theta(2);
-		theta4 = theta(3);
-		theta5 = theta(4);
+	//for(int i=0;i<10;i++)
+	//{
+		//theta1 = theta(0);
+		//theta2 = theta(1);
+		//theta3 = theta(2);
+		//theta4 = theta(3);
+		//theta5 = theta(4);
 		
-		a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
-		b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
-		c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
-		d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
-		e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
+		//a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
+		//b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
+		//c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
+		//d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
+		//e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
 
 
-		fk = a*b*c*d*e;
+		//fk = a*b*c*d*e;
 
-		epos=p_map(fk);
-		err=dist(epos,t);
-		if(err<0.1)
-		{	
-			cout<<"ERROR IS LESS THAN 0.1"<<endl;
-			break;
-		}
-		for(int j=0;j<4;j++)
-		{
-			theta1 = theta(0);
-			theta2 = theta(1);
-			theta3 = theta(2);
-			theta4 = theta(3);
-			theta5 = theta(4);
+		//epos=p_map(fk);
+		//err=dist(epos,t);
+		//if(err<0.1)
+		//{	
+			//cout<<"ERROR IS LESS THAN 0.1"<<endl;
+			//break;
+		//}
+		//for(int j=0;j<4;j++)
+		//{
+			//theta1 = theta(0);
+			//theta2 = theta(1);
+			//theta3 = theta(2);
+			//theta4 = theta(3);
+			//theta5 = theta(4);
 			
-			a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
-			b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
-			c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
-			d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
-			e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
+			//a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
+			//b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
+			//c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
+			//d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
+			//e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
 			
-			fk = a*b*c*d*e;
-			epos=p_map(fk);
-			cout<<"EPOS\n";
-			epos.print();
+			//fk = a*b*c*d*e;
+			//epos=p_map(fk);
+			//cout<<"EPOS\n";
+			//epos.print();
 				
-			if(i==0)
-				fk=a*b*c*d;
-			else if(i==1)
-				fk=a*b*c;
-			else if(i==2)
-				fk=a*b;
-			else if(i==3)
-				fk=a;
+			//if(i==0)
+				//fk=a*b*c*d;
+			//else if(i==1)
+				//fk=a*b*c;
+			//else if(i==2)
+				//fk=a*b;
+			//else if(i==3)
+				//fk=a;
 			
-			jpos=p_map(fk);
-			mat aa=(epos-jpos)/norm((epos-jpos),2);
-			mat bb=(t-jpos)/norm((t-jpos),2);
+			//jpos=p_map(fk);
+			//mat aa=(epos-jpos)/norm((epos-jpos),2);
+			//mat bb=(t-jpos)/norm((t-jpos),2);
 			
-			double theta_change=acos(dot(aa,bb));
-			//for direction:
-			mat theta_tempa;
-			theta_tempa<<theta(0)<<theta(1)<<theta(2)<<theta(3)<<theta(4);
-			theta_tempa(3-j)+=theta_change;		
+			//double theta_change=acos(dot(aa,bb));
+			////for direction:
+			//mat theta_tempa;
+			//theta_tempa<<theta(0)<<theta(1)<<theta(2)<<theta(3)<<theta(4);
+			//theta_tempa(3-j)+=theta_change;		
 			
-			mat theta_tempb;
-			theta_tempb<<theta(0)<<theta(1)<<theta(2)<<theta(3)<<theta(4);
-			theta_tempb(3-j)-=theta_change;
+			//mat theta_tempb;
+			//theta_tempb<<theta(0)<<theta(1)<<theta(2)<<theta(3)<<theta(4);
+			//theta_tempb(3-j)-=theta_change;
 			
-			theta1=theta_tempa(0);
-			theta2=theta_tempa(1);
-			theta3=theta_tempa(2);
-			theta4=theta_tempa(3);
-			theta5=theta_tempa(4);
+			//theta1=theta_tempa(0);
+			//theta2=theta_tempa(1);
+			//theta3=theta_tempa(2);
+			//theta4=theta_tempa(3);
+			//theta5=theta_tempa(4);
 				
-			a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
-			b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
-			c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
-			d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
-			e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
+			//a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
+			//b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
+			//c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
+			//d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
+			//e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
 					
-			epos=p_map(a*b*c*d*e);
-			erra=dist(epos,t);
+			//epos=p_map(a*b*c*d*e);
+			//erra=dist(epos,t);
 			
-			theta1=theta_tempb(0);
-			theta2=theta_tempb(1);
-			theta3=theta_tempb(2);
-			theta4=theta_tempb(3);
-			theta5=theta_tempb(4);
+			//theta1=theta_tempb(0);
+			//theta2=theta_tempb(1);
+			//theta3=theta_tempb(2);
+			//theta4=theta_tempb(3);
+			//theta5=theta_tempb(4);
 				
-			a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
-			b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
-			c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
-			d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
-			e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
+			//a<<cos(theta1)<< 0<< sin(theta1)<< 0<<endr<< sin(theta1)<<  0<< -cos(theta1)<< 0<<endr<< 0<< 1<< 0<< l1<<endr<< 0<< 0<< 0<< 1;
+			//b<<cos(theta2)<< 0<< sin(theta2)<< 0<<endr<< sin(theta2)<<  0<< -cos(theta2)<< 0<<endr<< 0<< 1<< 0<< -l2<<endr<< 0<< 0<< 0<< 1;
+			//c<<cos(theta3)<< 0<< sin(theta3)<< 0<<endr<< sin(theta3)<<  0<< -cos(theta3)<< 0<<endr<< 0<< 1<< 0<< -l3<<endr<< 0<< 0<< 0<< 1;
+			//d <<cos(theta4)<< 0<< sin(theta4)<< 0<<endr<< sin(theta4)<<  0<< -cos(theta4)<< 0<<endr<< 0<< 1<< 0<< 0<<endr<< 0<< 0<< 0<< 1;
+			//e <<cos(theta5)<< 0<< sin(theta5)<< 0<<endr<< sin(theta5)<<  0<< -cos(theta5)<< 0<<endr<< 0<< 1<< 0<< l5<<endr<< 0<< 0<< 0<< 1;
 					
-			epos=p_map(a*b*c*d*e);
-			errb=dist(epos,t);
-			//direction ends
+			//epos=p_map(a*b*c*d*e);
+			//errb=dist(epos,t);
+			////direction ends
 			
-			if(erra<errb)
-				theta(3-j)+=theta_change;
-			else if(erra>errb)
-				theta(3-j)-=theta_change;
+			//if(erra<errb)
+				//theta(3-j)+=theta_change;
+			//else if(erra>errb)
+				//theta(3-j)-=theta_change;
 				
-			if(theta(0)<t1al)
-				theta(0)=t1al;
-			if(theta(0)>t1bl)
-				theta(0)=t1bl;
-			if(theta(1)<t2al)
-				theta(1)=t2al;
-			if(theta(1)>t2bl)
-				theta(1)=t2bl;
-			if(theta(2)<t3al)
-				theta(2)=t3al;
-			if(theta(2)>t3bl)
-				theta(2)=t3bl;
-			if(theta(3)<t4al)
-				theta(3)=t4al;
-			if(theta(3)>t4bl)
-				theta(3)=t4bl;
+			//if(theta(0)<t1al)
+				//theta(0)=t1al;
+			//if(theta(0)>t1bl)
+				//theta(0)=t1bl;
+			//if(theta(1)<t2al)
+				//theta(1)=t2al;
+			//if(theta(1)>t2bl)
+				//theta(1)=t2bl;
+			//if(theta(2)<t3al)
+				//theta(2)=t3al;
+			//if(theta(2)>t3bl)
+				//theta(2)=t3bl;
+			//if(theta(3)<t4al)
+				//theta(3)=t4al;
+			//if(theta(3)>t4bl)
+				//theta(3)=t4bl;
 			
-			cout<<theta<<endl;
-		}
-	}
-	cout<<"TARGET"<<endl<<t<<endl;
-//	cout<<"CALCULATED"<<epos<<endl;
-	return theta;
-}
+			//cout<<theta<<endl;
+		//}
+	//}
+	//cout<<"TARGET"<<endl<<t<<endl;
+////	cout<<"CALCULATED"<<epos<<endl;
+	//return theta;
+//}
 	
 		
 		

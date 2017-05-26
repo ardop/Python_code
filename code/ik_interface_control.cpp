@@ -136,7 +136,8 @@ int main()
 
 				
 					
-					rotate(val,pca1);
+					//rotate(val,pca1);
+					execute_path(val, target, 1, 0, pca1);
 				}
 			}
 			iter++;

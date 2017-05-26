@@ -131,6 +131,10 @@ mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, dou
 
 }
 
+// General joint path that makes the joints pass through all the given configurations
+
+//mat joint_path_general(const mat& 
+
 //mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1, int n2, int nf)
 //{
 	//mat configuration_history;
@@ -246,6 +250,85 @@ mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, dou
 
 	//return configuration_history;
 //}
+
+mat cartesian_path_straight_linear(mat const& theta_a, mat const& target_a, mat const& target_b, int n0, int nf)
+{
+	mat configuration_history;
+	
+	// zero mat
+	mat zero;
+	zero << 0;
+	
+	mat minus_one;
+	minus_one << -1;
+	
+	mat t_a = theta_a;
+	mat t_b = calculate_ik_jacobian(target_b, false, zero);
+	t_b = join_vert(t_b, zero); // as the ik solution only gives 4 angles
+	
+	mat theta_b;
+	
+	if(t_b.n_rows == 2) // -1 and the appended 0
+	{
+		// Returns -1 if there is no solution
+		cout << "No final point solution" << endl;
+	}
+	else
+	{
+		// Time matrix
+		mat A;
+		A << n0 << 1 << endr << nf << 1;
+		
+		// Constraint matrix
+		mat B;
+		B = join_vert(target_a, target_b);
+		
+		// Solving
+		mat x;
+		x = solve(A, B);
+		
+		cout << "Computing Trajectory" << endl;
+		
+		for(int i=n0;i<=nf;i++)
+		{
+			mat a;
+			a << i << 1;
+			
+			mat target_c;
+			target_c = a*x;
+			
+			// Computing the ik solutions for this target
+			mat t_c;
+			t_c = calculate_ik_jacobian(target_c, true, t_a);
+			t_c = join_vert(t_c, zero); // As the ik solution only gives 4 angles
+			
+			cout << "Computing Trajectory" << endl;
+			
+			if(t_c.n_rows==2) // -1 and the appended 0
+			{
+				return minus_one;
+			}
+			
+			
+			
+			
+			configuration_history = join_vert(configuration_history, trans(t_c));
+			
+			t_a = trans(t_c);
+			
+		
+
+		}
+		
+		cout << "Completed computing trajectory" << endl;
+		
+		mat tmpp = calculate_target(t_a);
+		tmpp.print("final target");
+	
+		return configuration_history;
+	}
+	
+}
 
 
 

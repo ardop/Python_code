@@ -144,7 +144,7 @@ void rotate(int d[14],PCA9685 *a)
 	}
 }
 
-void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
+void execute_path(int d[14], mat const& target_b, int path_type, int model_type, PCA9685 *a)
 {
 	// computing theta_a and theta_b
 	// The angles have to be inversed mapped to kinematic angles
@@ -210,6 +210,8 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 				mat tmp;
 				tmp = kin_map_left(configuration_history.row(i));
 				
+				
+				
 				// Rounding off tmp
 				tmp = round(tmp);
 				
@@ -238,14 +240,40 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 			// Cubic
 			mat configuration_history;
 
-			int n0 = 0;
-			int nf = 100;
+			
 			// Initial and final velocities
 			double dq0 = 0.0;
 			double dqf = 0.0;
 			
 			left_theta_a = deg2rad(left_theta_a);
 			left_theta_b = deg2rad(left_theta_b);
+			
+			mat tmp_target_left_a = calculate_target(left_theta_a);
+			mat tmp_target_left_b = calculate_target(left_theta_b);
+			
+			
+			//for(int i=0;i<3;i++)
+			//{
+			
+				//di = di + pow((tmp_target_left_a(i) - tmp_target_left_b(i)), 2);
+			//}
+			
+			//di = sqrt(di);
+			
+			//double di = calculate_distance(trans(tmp_target_left_a), trans(tmp_target_left_b));
+			
+			// Computing angular distance between the initial and final angles to set the iteration count
+			double di = calculate_distance(left_theta_a, left_theta_b);
+			// Converting this angular distance in radians to degrees for better mapping to iteration count
+			di = rad2deg(di);
+			
+			int n0 = 0;
+			int nf = di * 6.25;
+			
+			
+			//double distance = dist(trans(tmp_target_left_a, tmp_target_left_b));
+			
+			cout << "Distance: " << di << endl;
 
 			configuration_history = joint_path_cubic(left_theta_a, left_theta_b, n0, nf, dq0, dqf);
 			
@@ -266,13 +294,13 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 				// displaying movement
 				for(int j=0;j<tmp.n_cols;j++)
 				{
-					cout << tmp(j) << "->" << d[j+6] << "..";
+					//cout << tmp(j) << "->" << d[j+6] << "..";
 				}
 				
-				cout << endl;
+				//cout << endl;
 				
 				//pause
-				usleep(5000);
+				usleep(1000);
 				
 			}
 		}
@@ -290,6 +318,70 @@ void execute_path(int d[14], int path_type, int model_type, PCA9685 *a)
 			//configuration_history = joint_path_piecewise(left_theta_a, left_theta_b, n0, nf);
 		//}
 
+	}
+	
+	
+	else if(path_type = 1)
+	{
+		//  Cartesian path
+		
+		if(model_type == 0)
+		{
+			// Straight line linear model
+			
+			mat configuration_history;
+
+			int n0 = 0;
+			int nf = 100;
+			
+			left_theta_a = deg2rad(left_theta_a);
+			
+			mat target_a = calculate_target(left_theta_a);
+
+			configuration_history = cartesian_path_straight_linear(left_theta_a, trans(target_a), target_b, n0, nf);
+			
+			configuration_history.print("Configuration");
+			
+			if(configuration_history.n_rows == 1)
+			{
+				cout << "No intermediate solution" << endl; 
+			}
+			
+			else
+			{
+			
+				// Moving the motors
+				
+				for(int i=0;i<configuration_history.n_rows;i++)
+				{
+					mat tmp;
+					tmp = kin_map_left(configuration_history.row(i));
+					tmp.print("conf");
+					
+					// Rounding off tmp
+					tmp = round(tmp);
+					
+					// Move all the angles of the left arm to the specific angle value in this iteration
+					for(int j=0;j<tmp.n_cols;j++)
+					{
+						a->setPWM(j+6, 0, map(tmp(j), 0, max_angle[j], servoMin[j], servoMax[j]));
+					}
+					
+					// displaying movement
+					//for(int j=0;j<tmp.n_cols;j++)
+					//{
+						//cout << tmp(j) << "->" << d[j+6] << "..";
+					//}
+					
+					
+					//pause
+					usleep(5000);
+					
+				}
+			}
+			
+		}		
+		
 	}
 }
 
