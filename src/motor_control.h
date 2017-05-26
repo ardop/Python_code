@@ -385,8 +385,112 @@ void execute_path(int d[14], mat const& target_b, int path_type, int model_type,
 	}
 }
 
-void execute_path(mat const& theta_sequence, mat const& n_sequence, int path_type, int model_type, PCA9685 *a)
+void execute_path_sequence(mat const& theta_sequence, int path_type, int model_type, PCA9685 *a)
 {
+	
+	// computing theta_a and theta_b
+	// The angles have to be inversed mapped to kinematic angles
+	mat left_theta_a, right_theta_a,  head_theta_a;
+	mat left_theta_sequence, right_theta_sequence;
+	mat n_sequence;
+	
+	for(int i=0;i<theta_sequence.n_rows;i++)
+	{
+		mat tmp_mat;
+		tmp_mat << inv_kin_map_left(1, deg2rad(theta_sequence(i, 0))) << inv_kin_map_left(2, deg2rad(theta_sequence(i, 1))) << inv_kin_map_left(3, deg2rad(theta_sequence(i, 2))) << inv_kin_map_left(4, deg2rad(theta_sequence(i, 3))) << inv_kin_map_left(5, deg2rad(theta_sequence(i, 4)));
+		tmp_mat = deg2rad(tmp_mat);
+		left_theta_sequence = join_vert(left_theta_sequence, tmp_mat);
+	}
+
+
+	// Reading theta_a
+	double temp_d[14];
+
+	for(int i=0;i<14;i++)
+	{
+		temp_d[i]=round(regread(i,a));
+	}
+
+	right_theta_a << temp_d[0] << temp_d[1] << temp_d[2] << temp_d[3] << temp_d[4];
+	left_theta_a << inv_kin_map_left(1, deg2rad(temp_d[6])) << inv_kin_map_left(2, deg2rad(temp_d[7])) << inv_kin_map_left(3, deg2rad(temp_d[8])) << inv_kin_map_left(4, deg2rad(temp_d[9])) << inv_kin_map_left(5, deg2rad(temp_d[10]));
+	head_theta_a << temp_d[12] << temp_d[13];
+	
+	
+	left_theta_sequence = join_horiz(deg2rad(left_theta_a), left_theta_sequence);
+	
+	//left_theta_a.print();
+	//left_theta_b.print();
+	
+	//cout << "----------------------------" << endl;
+	
+	//left_theta_a = kin_map_left(deg2rad(left_theta_a));
+	//left_theta_b = kin_map_left(deg2rad(left_theta_b));
+	
+	//left_theta_a.print();
+	//left_theta_b.print();
+	
+	//cout << "----------------------------" << endl;
+	
+
+	if(path_type == 0) // Joint path
+	{
+		
+		if(model_type == 0)
+		{
+			// movement with defined initial and final velocity and fixed in between configurations
+			
+			mat configuration_history;
+			n_sequence << 0;
+			
+			// computing iteration 'n' values
+			for(int i=1;i<theta_sequence.n_rows;i++)
+			{
+				mat tmp_target_left_a = calculate_target(theta_sequence.row(i-1));
+				mat tmp_target_left_b = calculate_target(theta_sequence.row(i));
+				
+				double di = calculate_distance(tmp_target_left_a, tmp_target_left_b);
+				di = rad2deg(di);
+				int nf = di*6.25;
+				
+				n_sequence << nf;
+			}
+			
+			double dq0 = 0.0;
+			double dqf = 0.0;
+
+			configuration_history = joint_path_general(theta_sequence, n_sequence, dq0, dqf);
+			
+			for(int i=0;i<configuration_history.n_rows;i++)
+			{
+				mat tmp;
+				tmp = kin_map_left(configuration_history.row(i));
+				
+				// Rounding off tmp
+				tmp = round(tmp);
+				
+				tmp.print();
+				
+				// Move all the angles of the left arm to the specific angle value in this iteration
+				for(int j=0;j<tmp.n_cols;j++)
+				{
+					a->setPWM(j+6, 0, map(tmp(j), 0, max_angle[j], servoMin[j], servoMax[j]));
+				}
+				
+				// displaying movement
+				for(int j=0;j<tmp.n_cols;j++)
+				{
+					//cout << tmp(j) << "->" << d[j+6] << "..";
+				}
+				
+				//cout << endl;
+				
+				//pause
+				usleep(1000);
+			}
+		}
+	}
+			
+			
 	
 }
 

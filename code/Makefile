@@ -12,6 +12,8 @@ reset:
 	g++ reset.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/reset -O2 -larmadillo
 help:
 	#mic,pick,reset,ik
+test:
+	g++ test.cpp ../src/JHPWMPCA9685.cpp -I ../src -o ../build/test -O2 -larmadillo
 
 
 

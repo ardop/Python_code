@@ -157,7 +157,9 @@ mat joint_path_general(const mat& theta_sequence, const mat& n_sequence, double 
 		{
 			// Each row of A
 			// Taking 'n' or iteration values from the n_sequence
-			tmp_A = join_horiz(tmp_A, pow(n_sequence(i), constraints - j - 1));
+			mat tmp_val;
+			tmp_val << pow(n_sequence(i), constraints - j - 1);
+			tmp_A = join_horiz(tmp_A, tmp_val);
 		}
 		
 		A = join_vert(A, tmp_A);
@@ -170,7 +172,9 @@ mat joint_path_general(const mat& theta_sequence, const mat& n_sequence, double 
 		mat tmp_A;
 		for(int j=0;j<constraints;j++)
 		{
-			tmp_A = join_horiz(tmp_A, (constraints - j - 1)*pow(n_sequence(i), constraints - j - 2));
+			mat tmp_val;
+			tmp_val << (constraints - j - 1)*pow(n_sequence(i), constraints - j - 2);
+			tmp_A = join_horiz(tmp_A, tmp_val);
 		}
 		
 		A = join_vert(A, tmp_A);
@@ -202,7 +206,9 @@ mat joint_path_general(const mat& theta_sequence, const mat& n_sequence, double 
 		
 		for(int j=0;j<constraints;j++)
 		{
-			a = join_horiz(a, pow(i, constraints - j - 1));
+			mat tmp_val;
+			tmp_val << pow(i, constraints - j - 1);
+			a = join_horiz(a, tmp_val);
 		}
 		
 		mat theta_c;
