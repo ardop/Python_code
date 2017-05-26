@@ -385,5 +385,10 @@ void execute_path(int d[14], mat const& target_b, int path_type, int model_type,
 	}
 }
 
+void execute_path(mat const& theta_sequence, mat const& n_sequence, int path_type, int model_type, PCA9685 *a)
+{
+	
+}
+
 
 

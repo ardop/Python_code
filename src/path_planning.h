@@ -133,7 +133,89 @@ mat joint_path_cubic(const mat& theta_a, const mat& theta_b, int n0, int nf, dou
 
 // General joint path that makes the joints pass through all the given configurations
 
-//mat joint_path_general(const mat& 
+mat joint_path_general(const mat& theta_sequence, const mat& n_sequence, double dq0, double dqf)
+{
+	// This planning takes care of initial and final velocities and all the configurations in between
+	
+	mat configuration_history;
+	
+	//Time matrix. Must be generated dynamically as the degree of the equation used depends on the number of points
+	// Defining degree of equation. It is equal to the number of constraints - 1. Number of constraints is number of 
+	// theta points + 2 (for velocities)
+	
+	int constraints = theta_sequence.n_rows + 2;
+	int positional_constraints = theta_sequence.n_rows;
+	
+	// Setting up the time matrix dynamically
+	
+	// First all the rows for position constraints
+	mat A;
+	for(int i=0;i<positional_constraints;i++)
+	{
+		mat tmp_A;
+		for(int j=0;j<constraints;j++)
+		{
+			// Each row of A
+			// Taking 'n' or iteration values from the n_sequence
+			tmp_A = join_horiz(tmp_A, pow(n_sequence(i), constraints - j - 1));
+		}
+		
+		A = join_vert(A, tmp_A);
+	}
+	
+	// Adding the velocity constraints at the start and end positions
+	
+	for(int i=positional_constraints;i<positional_constraints + 2;i++)
+	{
+		mat tmp_A;
+		for(int j=0;j<constraints;j++)
+		{
+			tmp_A = join_horiz(tmp_A, (constraints - j - 1)*pow(n_sequence(i), constraints - j - 2));
+		}
+		
+		A = join_vert(A, tmp_A);
+	}
+	
+	mat x;
+	
+	// Velocity vectors
+	mat dq0_mat, dqf_mat;
+
+	dq0_mat << dq0 << dq0 << dq0 << dq0 << dq0;
+	dqf_mat << dqf << dqf << dqf << dqf << dqf;
+	
+	mat B;
+	
+	B = join_vert(theta_sequence, dq0_mat);
+	B = join_vert(B, dqf_mat);
+	
+	x = solve(A, B);
+	
+	int n0 = n_sequence(0);
+	int nf = n_sequence(n_sequence.n_rows - 1);
+
+	print_check_matrix(A, B);
+	
+	for(int i=n0;i<=nf;i++)
+	{
+		mat a;
+		
+		for(int j=0;j<constraints;j++)
+		{
+			a = join_horiz(a, pow(i, constraints - j - 1));
+		}
+		
+		mat theta_c;
+		theta_c = a*x;
+		
+		configuration_history = join_vert(configuration_history, theta_c);
+	}
+
+	return configuration_history;
+	
+}
+	
+		
 
 //mat joint_path_piecewise(mat const& theta_a, mat const& theta_b, int n0, int n1, int n2, int nf)
 //{
