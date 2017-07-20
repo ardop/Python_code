@@ -11,8 +11,8 @@
 
 using namespace std;
 
- int servoMin = 390;
- int servoMax = 650;
+ int servoMin = 160;
+ int servoMax = 600;
  
  int getkey() {
     int character;
@@ -60,8 +60,8 @@ int main()
         printf("Hit ESC key to exit\n");
         
 		//pca1->setPWM(1,0,servoMin);  //servo 1
-		 //pca1->setPWM(1,0,servoMax);
-		pca1->setPWM(1,0,map(45,0,90,servoMin,servoMax));
+		 pca1->setPWM(1,0,servoMax);
+		//pca1->setPWM(1,0,map(90,0,180,servoMin,servoMax));
 	pca1->closePCA9685();
 }
 }

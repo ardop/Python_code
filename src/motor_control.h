@@ -43,8 +43,8 @@ using namespace std;
 // Make sure these are appropriate for the servo being used!
 
 
-int servoMin[14]={120, 135, 172, 155, 160, 150, 120, 135, 172, 155, 160, 150, 150, 150};
-int servoMax[14]={612, 390, 659, 410, 675, 370, 612, 390, 659, 410, 675, 370, 650, 650};
+int servoMin[14]={170, 390, 160, 415, 160, 150, 120, 135, 172, 155, 160, 150, 150, 150};
+int servoMax[14]={667, 650, 677, 660, 675, 370, 612, 390, 659, 410, 675, 370, 650, 650};
 int max_angle[14]={180, 90, 180, 90, 180, 90, 180, 90, 180, 90, 180, 90, 180, 180};
 
 int getkey() {
@@ -251,25 +251,32 @@ void execute_path(int d[14], mat const& target_b, int path_type, int model_type,
 			mat tmp_target_left_a = calculate_target(left_theta_a);
 			mat tmp_target_left_b = calculate_target(left_theta_b);
 			
+			double di = 0;
 			
-			//for(int i=0;i<3;i++)
-			//{
+			for(int i=0;i<3;i++)
+			{
 			
-				//di = di + pow((tmp_target_left_a(i) - tmp_target_left_b(i)), 2);
-			//}
+				di = di + pow((tmp_target_left_a(i) - tmp_target_left_b(i)), 2);
+			}
 			
-			//di = sqrt(di);
+			di = sqrt(di);
+			
+
 			
 			//double di = calculate_distance(trans(tmp_target_left_a), trans(tmp_target_left_b));
 			
 			// Computing angular distance between the initial and final angles to set the iteration count
-			double di = calculate_distance(left_theta_a, left_theta_b);
+			//double di = calculate_distance(left_theta_a, left_theta_b);
 			// Converting this angular distance in radians to degrees for better mapping to iteration count
-			di = rad2deg(di);
+			//di = rad2deg(di);
 			
 			int n0 = 0;
 			int nf = di * 6.25;
 			
+			if(nf>150)
+			{
+				nf = 150;
+			}
 			
 			//double distance = dist(trans(tmp_target_left_a, tmp_target_left_b));
 			
@@ -288,7 +295,7 @@ void execute_path(int d[14], mat const& target_b, int path_type, int model_type,
 				// Move all the angles of the left arm to the specific angle value in this iteration
 				for(int j=0;j<tmp.n_cols;j++)
 				{
-					a->setPWM(j+6, 0, map(tmp(j), 0, max_angle[j], servoMin[j], servoMax[j]));
+					a->setPWM(j+6, 0, map(tmp(j), 0, max_angle[j+6], servoMin[j+6], servoMax[j+6]));
 				}
 				
 				// displaying movement

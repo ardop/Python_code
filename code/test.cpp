@@ -39,20 +39,20 @@ int main()
 		mat target;
 		target << -30 << 30 << 30;
 		theta = calculate_ik_jacobian(target, false, zero);
-		theta << 0;
+		theta = join_horiz(trans(theta), zero);
 		theta = kin_map_left(theta);
 		
 		
-		theta_sequence = join_vert(theta_sequence, trans(theta));
+		theta_sequence = join_vert(theta_sequence, theta);
+		
 		
 		target.reset();
 		target << -20 << 30 << 30;
 		theta = calculate_ik_jacobian(target, false, zero);
-		theta << 0;
+		theta = join_horiz(trans(theta), zero);
 		theta = kin_map_left(theta);
 		
-		theta_sequence = join_vert(theta_sequence, trans(theta));
-		
+		theta_sequence = join_vert(theta_sequence, theta);
 
 		
 		//rotate(val,pca1);

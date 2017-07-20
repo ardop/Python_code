@@ -1,2 +1,2 @@
-make cali
-cd ../build && sudo ./cali && cd ../code
+make magic
+cd ../build && sudo ./ik_magic && cd ../code
